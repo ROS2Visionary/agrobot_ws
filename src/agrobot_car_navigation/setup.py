@@ -24,7 +24,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "temp = agrobot_car_navigation.temp:main"
+            "temp = agrobot_car_navigation.temp:main",
             "multi_point_nav = agrobot_car_navigation.get_navigation_point:main"
         ],
     },

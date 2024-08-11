@@ -30,13 +30,17 @@ def generate_launch_description():
 
 
     # 电机控制(里程计在这个节点中发布)
-    firmware_node = Node(
+    robot_chassis_node = Node(
         package="agrobot_car_firmware",
         executable="serial_comm",
         output="screen",
     )
 
     # 建图可选方式，（slam、cartographer麻烦的地方在于参数的设置，建图的质量与参数相关，不正确的参数设置，可能会导致建图失败）
+    # 注意：使用slam建图时，节点robot_chassis_node禁止启动，因为slam使用的是基于“图”的技术，它完全可以只依赖激光雷达来完成建图，
+    #       而节点robot_chassis_node会发布里程话题(/odom)，该里程计的数据来自于两轮差速和IMU，因此该里程计的噪声会非常大
+    # 注意：使用cartographer建图时，节点robot_chassis_node启动与否的看你相关的参数设置(参数文件：cartographer_2d.lua)，因为该节点会发布里程话题(/odom)
+    # 注意：使用custom建图时，节点robot_chassis_node需要启动
     mapping_launch_name = "/slam_toolbox_mapping_launch.py" # slam建图
     # mapping_launch_name = "/cartographer_mapping_launch.py" # cartographer建图
     # mapping_launch_name = "/custom_mapping_launch.py" # 自定义建图，仅为演示2D建图的流程，该建图方式仅供学习
@@ -55,12 +59,13 @@ def generate_launch_description():
     # 3、时间不同步：节点启动顺序不确定可能导致时间同步问题，尤其是在需要依赖其他节点的数据时（如传感器数据、TF变换）。
     # 二、TF节点必须优先启动
     return LaunchDescription([
-            # 错开节点启动的时间间隔
-            firmware_node,liser_node,
-            static_tf_node,
-            TimerAction(
-                period=10.0,  
-                actions=[mapping_node]
-            )
-        ])
+        # 注意：使用slam建图时，节点robot_chassis_node禁止启动，其它方式建图时节点robot_chassis_node必须启动
+        # robot_chassis_node, 
+        liser_node,
+        static_tf_node,
+        TimerAction(
+            period=10.0,  
+            actions=[mapping_node]
+        )
+    ])
 

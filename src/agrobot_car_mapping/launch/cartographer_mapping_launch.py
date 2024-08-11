@@ -36,11 +36,11 @@ def generate_launch_description():
         arguments=['-configuration_directory', configuration_directory,
                    '-configuration_basename', configuration_basename],  # 传递配置文件的路径和文件名作为参数
         # 可选的重映射配置，用于重映射传感器话题
-        # remappings=[
+        remappings=[
                 # ('/imu', '/imu/data'),  # 重映射IMU话题
-                # ('/scan', '/scan/data'),  # 重映射激光雷达话题
+                ('/scan', '/raw_scan'),  # 重映射激光雷达话题
                 # ('/odom', '/odom/data')  # 重映射里程计话题
-            # ]
+            ],
         parameters=[{"use_sim_time":use_sim_time}]  # 使用传递的'sim_time'参数，决定是否使用模拟时间
     )
 
@@ -62,7 +62,7 @@ def generate_launch_description():
         output="screen",  # 将节点输出打印到屏幕
         parameters=[
             {"time_interval":10.0},  # 设置地图保存的时间间隔，单位为秒
-            {"save_dir_path":"/root/agrobot_ws/src/agrobot_car_mapping/maps_sw"}  # 设置保存地图的目录路径，确保路径存在
+            {"save_dir_path":"/root/agrobot_ws/src/agrobot_car_mapping/maps_ws"}  # 设置保存地图的目录路径，确保路径存在
         ]
     )
     

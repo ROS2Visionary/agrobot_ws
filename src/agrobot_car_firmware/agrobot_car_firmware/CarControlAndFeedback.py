@@ -125,7 +125,7 @@ class CarControlAndFeedback(Node):
         odom.header.stamp = now.to_msg()  # 设置消息的时间戳为当前时间
         # 必须指定id，指定了坐标id才能让TF变换系统(需要先发布TF变换)自动查找并处理这些坐标框架之间的变换关系
         odom.header.frame_id = 'odom'  
-        odom.child_frame_id = "base_link"
+        odom.child_frame_id = "base_footprint"
 
         # 设置位置信息
         odom.pose.pose.position.x = self.position_x
@@ -149,10 +149,10 @@ class CarControlAndFeedback(Node):
         self.last_time = now
 
         # self.output_tags += 1
-        # if self.output_tags > 20:
+        # if self.output_tags > 60:
         #     self.output_tags = 0
         #     if v != 0.0 or omega != 0.0:
-        #         print(f"Z轴转角: {np.degrees(self.theta)} - 位置:{odom.pose.pose.position}")
+        #         self.get_logger().info(f"Z轴转角: {np.degrees(self.theta)} - 位置:{odom.pose.pose.position}")
         self.pub_odom.publish(odom)
 
 
@@ -253,8 +253,9 @@ def main(args=None):
     # test_thread = threading.Thread(target=node.test)
     # test_thread.start()
 
-    test_thread_2 = threading.Thread(target=node.read_data)
-    test_thread_2.start()
+    # 启动子线程接收机器人发出的数据
+    accept_agrobot_data_thread = threading.Thread(target=node.read_data)
+    accept_agrobot_data_thread.start()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

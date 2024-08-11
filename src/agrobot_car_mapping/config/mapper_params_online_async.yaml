@@ -29,9 +29,9 @@ slam_toolbox:
     transform_publish_period: 0.02  # 里程计变换的发布周期（秒），较小的值会增加TF（坐标变换）的发布频率，0表示不发布变换。
     map_update_interval: 1.0  # 地图更新的时间间隔（秒），每5秒更新一次地图，较长的时间间隔可以减少计算开销，但可能降低实时性。
     resolution: 0.05  # 地图的分辨率（米/像素），较小的值表示更高的分辨率，可以生成更精细的地图，但计算量也更大。
-    min_laser_range: 0.0  # 激光雷达的最小测量范围（米），低于此距离的测量数据将被忽略，适用于过滤掉近距离噪声。
+    min_laser_range: 0.02  # 激光雷达的最小测量范围（米），低于此距离的测量数据将被忽略，适用于过滤掉近距离噪声。
     max_laser_range: 12.0  # 激光雷达的最大测量范围（米），超过此距离的测量数据将被忽略，避免使用无效数据。
-    minimum_time_interval: 0.1  # 激光扫描数据的最小时间间隔（秒），用于避免过于频繁的数据处理，减少计算负担。
+    minimum_time_interval: 0.05  # 激光扫描数据的最小时间间隔（秒），用于避免过于频繁的数据处理，减少计算负担。
     transform_timeout: 0.2  # 变换的超时时间（秒），超过此时间未获取到变换时将视为超时，有助于处理延迟问题。
     tf_buffer_duration: 30.0  # TF（坐标变换）缓存的持续时间（秒），设置为30秒以确保足够的历史数据供查询。
     stack_size_to_use: 40000000  # 程序所需的堆栈大小（字节），在处理大规模地图时需要较大的堆栈空间以避免溢出。
@@ -40,9 +40,9 @@ slam_toolbox:
     # 通用参数
     use_scan_matching: true  # 是否启用扫描匹配功能，启用后可以提高地图构建和定位的精度，特别是在特征稀少的环境中。
     use_scan_barycenter: true  # 是否使用扫描的重心进行匹配，启用后可以增加匹配的稳定性和准确性。
-    minimum_travel_distance: 0.01  # 机器人必须移动的最小距离（米），超过此距离才会更新地图，用于避免不必要的更新。
-    minimum_travel_heading: 0.01  # 机器人必须转动的最小角度（弧度），超过此角度才会更新地图，避免频繁更新。
-    scan_buffer_size: 20  # 扫描数据缓冲区的大小，用于存储最近的激光扫描数据，以便进行匹配和分析。
+    minimum_travel_distance: 0.0001  # 机器人必须移动的最小距离（米），超过此距离才会更新地图，用于避免不必要的更新。
+    minimum_travel_heading: 0.0001  # 机器人必须转动的最小角度（弧度），超过此角度才会更新地图，避免频繁更新。
+    scan_buffer_size: 50  # 扫描数据缓冲区的大小，用于存储最近的激光扫描数据，以便进行匹配和分析。
     scan_buffer_maximum_scan_distance: 10.0  # 扫描缓冲区内允许的最大扫描距离（米），超过此距离的数据将被丢弃。
     link_match_minimum_response_fine: 0.1  # 细粒度匹配的最小响应值，低于此值的匹配将被视为不可靠，从而忽略。
     link_scan_maximum_distance: 1.5  # 链接扫描的最大距离（米），用于确定哪些扫描结果可以作为有效的匹配依据。
@@ -66,8 +66,8 @@ slam_toolbox:
     # 扫描匹配参数
     distance_variance_penalty: 0.5  # 距离方差惩罚系数，用于限制距离误差的影响，减少错误匹配的可能性。
     angle_variance_penalty: 1.0  # 角度方差惩罚系数，用于限制角度误差的影响，确保匹配角度的精度。
-    fine_search_angle_offset: 0.00349  # 细粒度搜索的角度偏移（弧度），用于提高匹配的精度。
-    coarse_search_angle_offset: 0.349  # 粗粒度搜索的角度偏移（弧度），用于快速初步匹配，但可能影响精度。
+    fine_search_angle_offset: 0.00174  # 细粒度搜索的角度偏移（弧度），用于提高匹配的精度。
+    coarse_search_angle_offset: 0.1745    # 粗粒度搜索的角度偏移（弧度），用于快速初步匹配，但可能影响精度。
     coarse_angle_resolution: 0.0349  # 粗粒度角度搜索的分辨率（弧度），较低的分辨率可以提高搜索速度，但可能降低精度。
     minimum_angle_penalty: 0.9  # 最小角度惩罚系数，用于避免过大的角度误差，确保匹配的角度精度。
     minimum_distance_penalty: 0.5  # 最小距离惩罚系数，用于避免过大的距离误差，确保匹配的空间精度。

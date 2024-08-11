@@ -44,8 +44,8 @@ def generate_launch_description():
         name="custom_sequence_map_saver",  # 为节点指定一个名称
         output="screen",  # 输出信息到屏幕
         parameters=[
-            {"time_interval":10.0},  # 地图保存间隔，单位为秒
-            {"save_dir_path":"/root/agrobot_ws/src/agrobot_car_mapping/sequence_maps_sw"},  # 保存地图的目录路径，确保该路径存在
+            {"time_interval":20.0},  # 地图保存间隔，单位为秒
+            {"save_dir_path":"/root/agrobot_ws/src/agrobot_car_mapping/sequence_maps_ws"},  # 保存地图的目录路径，确保该路径存在
         ]
     )
 
@@ -56,8 +56,8 @@ def generate_launch_description():
         name="custom_map_saver",  # 为节点指定一个名称
         output="screen",  # 输出信息到屏幕
         parameters=[
-            {"time_interval":10.0},  # 地图保存间隔，单位为秒
-            {"save_dir_path":"/root/agrobot_ws/src/agrobot_car_mapping/maps_sw"},  # 保存地图的目录路径，确保该路径存在
+            {"time_interval":20.0},  # 地图保存间隔，单位为秒
+            {"save_dir_path":"/root/agrobot_ws/src/agrobot_car_mapping/maps_ws"},  # 保存地图的目录路径，确保该路径存在
         ]
     )
 
@@ -67,7 +67,7 @@ def generate_launch_description():
         lidar_data_relay_node,
         async_slam_toolbox,  # 然后包含slam_toolbox的launch文件
         TimerAction(
-            period=40.0,  # 指定延迟
-            actions=[map_saver_node, sequence_map_saver_node]  # 定时启动两个地图保存节点
+            period=10.0,  # 指定延迟
+            actions=[map_saver_node,sequence_map_saver_node]  # 定时启动两个地图保存节点
         )
     ])

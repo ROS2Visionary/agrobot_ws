@@ -14,12 +14,12 @@ class lidar_data_relay(Node):
 
     def accept_liser(self,msg:LaserScan):
         
-        msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = "liser_link"
+        # msg.header.stamp = self.get_clock().now().to_msg()
+        # msg.header.frame_id = "liser_link"
 
         # count = (msg.angle_max - msg.angle_min) / msg.angle_increment
         # print(f"{count} - {len(msg.ranges)}")
-
+        
         msg.angle_increment = (msg.angle_max - msg.angle_min) / 530
 
         # count = (msg.angle_max - msg.angle_min) / msg.angle_increment

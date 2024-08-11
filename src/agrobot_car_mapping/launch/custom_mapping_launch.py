@@ -34,7 +34,7 @@ def generate_launch_description():
         output="screen",  # 将节点的输出打印到屏幕
         parameters=[
             {"time_interval": 10.0},  # 设置地图保存的时间间隔，单位为秒
-            {"save_dir_path": "/root/agrobot_ws/src/agrobot_car_mapping/maps_sw"},  # 设置保存地图的目录路径，确保路径存在
+            {"save_dir_path": "/root/agrobot_ws/src/agrobot_car_mapping/maps_ws"},  # 设置保存地图的目录路径，确保路径存在
         ]
     )
     

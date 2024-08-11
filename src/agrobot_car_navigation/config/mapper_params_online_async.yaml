@@ -1,0 +1,71 @@
+slam_toolbox:
+  ros__parameters:
+    # 插件参数
+    solver_plugin: solver_plugins::CeresSolver  # 使用Ceres Solver作为优化器，用于SLAM的后端优化
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY  # Ceres Solver的线性求解器类型，适用于大规模稀疏问题
+    ceres_preconditioner: SCHUR_JACOBI  # Ceres Solver的预处理器类型，优化求解效率
+    ceres_trust_strategy: LEVENBERG_MARQUARDT  # Ceres Solver的信赖域策略，用于非线性最小二乘问题
+    ceres_dogleg_type: TRADITIONAL_DOGLEG  # Ceres Solver的Dogleg类型，选择传统的Dogleg方法
+    ceres_loss_function: None  # Ceres Solver的损失函数类型，默认不使用损失函数
+
+    # ROS参数
+    odom_frame: odom  # 里程计坐标系名称，用于跟踪机器人运动
+    map_frame: map  # 地图坐标系名称，用于表示全局地图
+    base_frame: base_footprint  # 机器人基础坐标系名称，表示机器人的物理位置
+    scan_topic: /scan  # 激光扫描话题名称，用于获取激光雷达数据
+    use_map_saver: true  # 是否启用地图保存功能，保存构建的地图
+    mode: mapping  # SLAM模式，"mapping"表示构建地图，"localization"表示在现有地图上进行定位
+
+    # 如果想要在给定位置或在基座处立即开始继续地图，但它们是互斥的，如果给定位置，则使用位置
+    #map_file_name: test_steve  # 地图文件名称，用于加载现有地图
+    #map_start_pose: [0.0, 0.0, 0.0]  # 地图起始位姿，用于初始化位置
+    #map_start_at_dock: true  # 是否从基座开始，用于自动启动时定位到基座
+
+    debug_logging: false  # 是否启用调试日志，用于排查问题
+    throttle_scans: 1  # 扫描频率调节，每隔多少帧处理一次扫描数据
+    transform_publish_period: 0.02  # 变换发布周期（秒），如果为0则不发布里程计信息
+    map_update_interval: 5.0  # 地图更新间隔（秒），决定地图更新的频率
+    resolution: 0.05  # 地图分辨率（米/像素），决定地图的精细程度
+    max_laser_range: 20.0  # 激光最大测量范围（米），用于滤除超过此范围的数据
+    minimum_time_interval: 0.5  # 最小时间间隔（秒），用于控制数据处理频率
+    transform_timeout: 0.2  # 变换超时时间（秒），用于变换查找的超时设置
+    tf_buffer_duration: 30.0  # TF缓存持续时间（秒），决定TF变换的缓存时间
+    stack_size_to_use: 40000000  # 程序需要更大的栈大小以序列化大型地图，防止内存溢出
+    enable_interactive_mode: true  # 是否启用交互模式，允许用户在运行时调整参数
+
+    # 一般参数
+    use_scan_matching: true  # 是否启用扫描匹配，优化位姿估计
+    use_scan_barycenter: true  # 是否使用扫描重心，提高匹配精度
+    minimum_travel_distance: 0.5  # 最小行驶距离（米），超过此距离才更新位姿
+    minimum_travel_heading: 0.5  # 最小行驶角度（弧度），超过此角度才更新位姿
+    scan_buffer_size: 10  # 扫描缓冲区大小，存储最近的扫描数据
+    scan_buffer_maximum_scan_distance: 10.0  # 扫描缓冲区最大扫描距离（米），用于控制缓冲区大小
+    link_match_minimum_response_fine: 0.1  # 细匹配最小响应阈值，控制匹配质量
+    link_scan_maximum_distance: 1.5  # 链接扫描最大距离（米），用于匹配的最大距离
+    loop_search_maximum_distance: 3.0  # 闭环搜索最大距离（米），用于闭环检测
+    do_loop_closing: true  # 是否启用闭环，优化全局地图一致性
+    loop_match_minimum_chain_size: 10  # 闭环匹配最小链大小，控制闭环检测精度
+    loop_match_maximum_variance_coarse: 3.0  # 闭环匹配最大粗糙方差，控制闭环匹配质量
+    loop_match_minimum_response_coarse: 0.35  # 闭环匹配最小粗糙响应，控制闭环匹配质量
+    loop_match_minimum_response_fine: 0.45  # 闭环匹配最小细致响应，控制闭环匹配质量
+
+    # 关联参数 - 关联参数
+    correlation_search_space_dimension: 0.5  # 关联搜索空间维度（米），控制搜索空间大小
+    correlation_search_space_resolution: 0.01  # 关联搜索空间分辨率（米），控制搜索精度
+    correlation_search_space_smear_deviation: 0.1  # 关联搜索空间涂抹偏差（米），控制搜索平滑度
+
+    # 关联参数 - 闭环参数
+    loop_search_space_dimension: 8.0  # 闭环搜索空间维度（米），控制搜索空间大小
+    loop_search_space_resolution: 0.05  # 闭环搜索空间分辨率（米），控制搜索精度
+    loop_search_space_smear_deviation: 0.03  # 闭环搜索空间涂抹偏差（米），控制搜索平滑度
+
+    # 扫描匹配参数
+    distance_variance_penalty: 0.5  # 距离方差惩罚系数，控制匹配的平滑度
+    angle_variance_penalty: 1.0  # 角度方差惩罚系数，控制匹配的平滑度
+
+    fine_search_angle_offset: 0.00349  # 细致搜索角度偏移（弧度），控制细匹配的精度
+    coarse_search_angle_offset: 0.349  # 粗糙搜索角度偏移（弧度），控制粗匹配的精度
+    coarse_angle_resolution: 0.0349  # 粗糙角度分辨率（弧度），控制粗匹配的精度
+    minimum_angle_penalty: 0.9  # 最小角度惩罚，控制匹配质量
+    minimum_distance_penalty: 0.5  # 最小距离惩罚，控制匹配质量
+    use_response_expansion: true  # 是否使用响应扩展，优化匹配结果

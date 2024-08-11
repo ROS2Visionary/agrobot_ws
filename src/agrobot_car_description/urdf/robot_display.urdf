@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!-- 机器人的URDF描述文件 -->
+
+<robot name="robot">
+
+  <!-- odom 坐标系 -->
+  <link name="odom"/>
+
+  <!-- 机器人的底盘 -->
+  <link name="base_footprint"/>
+
+  <!-- odom 和 base_footprint 之间的固定关节 -->
+  <joint name="odom_joint" type="fixed">
+    <parent link="odom"/>
+    <child link="base_footprint"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- 底盘和基本连接处的关节 -->
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <!-- 机器人的主体链接 -->
+  <link name="base_link">
+    <!-- 碰撞模型 -->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.6 0.36 0.09"/>
+        <!-- 定义长方体的尺寸 -->
+      </geometry>
+    </collision>
+    <!-- 可视化模型 -->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.6 0.36 0.09"/>
+        <!-- 定义长方体的尺寸 -->
+      </geometry>
+      <material name="grey">
+        <color rgba="0.5 0.5 0.5 0.5"/>
+      </material>
+    </visual>
+    <!-- 惯性属性 -->
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+
+  <!-- 激光传感器链接 -->
+  <link name="liser_link">
+    <!-- 可视化描述 -->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.035" radius="0.025"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 0.0 05" />
+        <!-- 黑色半透明材质 -->
+      </material>
+    </visual>
+    <!-- 碰撞检测描述 -->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.035" radius="0.025"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 0.0 0.5" />
+        <!-- 黑色半透明材质 -->
+      </material>
+    </collision>
+    <!-- 惯性描述 -->
+    <inertial>
+      <mass value="0.1"/>
+      <!-- 质量 -->
+      <inertia ixx="0.000190416666667" ixy="0" ixz="0" iyy="0.0001904" iyz="0" izz="0.00036"/>
+      <!-- 转动惯量 -->
+    </inertial>
+  </link>
+
+  <!-- 激光传感器和主体连接处的关节 -->
+  <joint name="liser_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="liser_link" />
+    <origin xyz="0.25 0 0.06" />
+    <!-- 相对于base_link的位置 -->
+  </joint>
+
+</robot>

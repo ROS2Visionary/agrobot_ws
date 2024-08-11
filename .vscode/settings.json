@@ -1,0 +1,27 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/ros2_projects/robot_ws/install/panda_moveit_config/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_car_navigation/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_car_mapping/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_car_localization/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_car_firmware/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_car_description/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_car_controller/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_arm_description/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/ros2_projects/robot_ws/install/panda_moveit_config/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_car_navigation/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_car_mapping/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_car_localization/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_car_firmware/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_car_description/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_car_controller/lib/python3.10/site-packages",
+        "/ros2_projects/robot_ws/install/agrobot_arm_description/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "cmake.sourceDirectory": "/root/agrobot_ws/src/lslidar_driver"
+}

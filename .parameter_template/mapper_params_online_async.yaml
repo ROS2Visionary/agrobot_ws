@@ -1,0 +1,74 @@
+slam_toolbox:
+  ros__parameters:
+
+    # 插件参数
+    solver_plugin: solver_plugins::CeresSolver  # 使用CeresSolver作为求解器插件，CeresSolver是一种强大的非线性优化工具，广泛用于SLAM和视觉SLAM中。
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY  # 选择稀疏的Normal-Cholesky作为线性求解器，适用于处理稀疏矩阵，具有高效的计算性能。
+    ceres_preconditioner: SCHUR_JACOBI  # 使用Schur-Jacobi作为预条件器，帮助加速迭代收敛，提高求解效率。
+    ceres_trust_strategy: LEVENBERG_MARQUARDT  # 选择Levenberg-Marquardt作为信赖域策略，这是一种介于梯度下降和牛顿法之间的优化方法，适合非线性最小二乘问题。
+    ceres_dogleg_type: TRADITIONAL_DOGLEG  # 采用传统的Dogleg方法进行信赖域优化，平衡了全局搜索与局部搜索的效率。
+    ceres_loss_function: None  # 不使用额外的损失函数，意味着在优化过程中直接使用误差值计算。
+
+    # ROS 参数
+    odom_frame: odom  # 里程计坐标系的名称，用于表示机器人在相对运动坐标系中的位置和姿态。
+    map_frame: map  # 地图坐标系的名称，代表机器人在全局坐标系中的位置，用于SLAM中的地图构建和定位。
+    base_frame: base_footprint  # 机器人基座的坐标系，通常用于表示机器人的底盘位置，是所有其他坐标系的参考点。
+    scan_topic: /scan  # 激光扫描话题的名称，SLAM工具箱将从此话题接收激光雷达数据以进行地图构建和定位。
+    use_map_saver: true  # 启用地图保存功能，地图数据会自动保存到文件中，以供后续使用或恢复。
+
+    mode: mapping  # 设置为“mapping”模式以进行地图构建。如果设置为“localization”，则工具将进入定位模式，在已有地图上进行定位。
+
+    # 如果希望在启动时立即从某个位置继续建图
+    # 或者从充电桩位置开始建图，但这两者是互斥的。如果提供了位姿，则使用该位姿
+    # map_file_name: ''  # 地图文件的名称，如果提供此文件，将从该地图开始定位或继续建图。
+    # map_start_pose: [0.0, 0.0, 0.0]  # 地图中的起始位姿，表示机器人在地图中的初始位置（x, y, theta）。
+    #map_start_at_dock: true  # 是否从充电桩位置开始建图，如果设置为true，机器人会假设自己从充电桩位置出发。
+
+    debug_logging: false  # 是否启用调试日志输出，设置为false以减少不必要的日志信息，适合日常运行时使用。
+    throttle_scans: 1  # 控制激光扫描数据处理的频率，1表示处理所有扫描数据，增加该值可以减少处理频率，从而降低计算负担。
+    transform_publish_period: 0.02  # 里程计变换的发布周期（秒），较小的值会增加TF（坐标变换）的发布频率，0表示不发布变换。
+    map_update_interval: 5.0  # 地图更新的时间间隔（秒），每5秒更新一次地图，较长的时间间隔可以减少计算开销，但可能降低实时性。
+    resolution: 0.05  # 地图的分辨率（米/像素），较小的值表示更高的分辨率，可以生成更精细的地图，但计算量也更大。
+    min_laser_range: 0.0  # 激光雷达的最小测量范围（米），低于此距离的测量数据将被忽略，适用于过滤掉近距离噪声。
+    max_laser_range: 20.0  # 激光雷达的最大测量范围（米），超过此距离的测量数据将被忽略，避免使用无效数据。
+    minimum_time_interval: 0.5  # 激光扫描数据的最小时间间隔（秒），用于避免过于频繁的数据处理，减少计算负担。
+    transform_timeout: 0.2  # 变换的超时时间（秒），超过此时间未获取到变换时将视为超时，有助于处理延迟问题。
+    tf_buffer_duration: 30.0  # TF（坐标变换）缓存的持续时间（秒），设置为30秒以确保足够的历史数据供查询。
+    stack_size_to_use: 40000000  # 程序所需的堆栈大小（字节），在处理大规模地图时需要较大的堆栈空间以避免溢出。
+    enable_interactive_mode: true  # 启用交互模式，允许用户在RViz中手动调整地图和位姿，用于更直观的操作和调试。
+
+    # 通用参数
+    use_scan_matching: true  # 是否启用扫描匹配功能，启用后可以提高地图构建和定位的精度，特别是在特征稀少的环境中。
+    use_scan_barycenter: true  # 是否使用扫描的重心进行匹配，启用后可以增加匹配的稳定性和准确性。
+    minimum_travel_distance: 0.5  # 机器人必须移动的最小距离（米），超过此距离才会更新地图，用于避免不必要的更新。
+    minimum_travel_heading: 0.5  # 机器人必须转动的最小角度（弧度），超过此角度才会更新地图，避免频繁更新。
+    scan_buffer_size: 10  # 扫描数据缓冲区的大小，用于存储最近的激光扫描数据，以便进行匹配和分析。
+    scan_buffer_maximum_scan_distance: 10.0  # 扫描缓冲区内允许的最大扫描距离（米），超过此距离的数据将被丢弃。
+    link_match_minimum_response_fine: 0.1  # 细粒度匹配的最小响应值，低于此值的匹配将被视为不可靠，从而忽略。
+    link_scan_maximum_distance: 1.5  # 链接扫描的最大距离（米），用于确定哪些扫描结果可以作为有效的匹配依据。
+    loop_search_maximum_distance: 3.0  # 回环搜索的最大距离（米），用于回环检测，帮助识别并校正地图的漂移。
+    do_loop_closing: true  # 是否启用回环闭合功能，启用后可以减少累积误差，防止地图因漂移而失真。
+    loop_match_minimum_chain_size: 10  # 回环匹配的最小链条大小，较小的值可以更早地检测到回环，但可能引入误匹配。
+    loop_match_maximum_variance_coarse: 3.0  # 粗粒度回环匹配的最大方差，控制匹配的容忍度，防止错误匹配。
+    loop_match_minimum_response_coarse: 0.35  # 粗粒度回环匹配的最小响应值，低于此值的匹配结果将被过滤掉。
+    loop_match_minimum_response_fine: 0.45  # 细粒度回环匹配的最小响应值，用于提高匹配精度和回环检测的可靠性。
+
+    # 相关参数
+    correlation_search_space_dimension: 0.5  # 相关搜索空间的维度（米），定义搜索空间的大小，用于优化计算。
+    correlation_search_space_resolution: 0.01  # 相关搜索空间的分辨率（米），分辨率越高，匹配精度越高，但计算量也越大。
+    correlation_search_space_smear_deviation: 0.1  # 相关搜索空间的偏差（米），用于处理噪声和不确定性，增加匹配的鲁棒性。
+
+    # 回环闭合参数
+    loop_search_space_dimension: 8.0  # 回环搜索空间的维度（米），定义回环检测的搜索范围，决定回环闭合的检测能力。
+    loop_search_space_resolution: 0.05  # 回环搜索空间的分辨率（米），较高的分辨率可以提高回环检测的精度。
+    loop_search_space_smear_deviation: 0.03  # 回环搜索空间的偏差（米），用于处理噪声和不确定性，增加回环检测的鲁棒性。
+
+    # 扫描匹配参数
+    distance_variance_penalty: 0.5  # 距离方差惩罚系数，用于限制距离误差的影响，减少错误匹配的可能性。
+    angle_variance_penalty: 1.0  # 角度方差惩罚系数，用于限制角度误差的影响，确保匹配角度的精度。
+    fine_search_angle_offset: 0.00349  # 细粒度搜索的角度偏移（弧度），用于提高匹配的精度。
+    coarse_search_angle_offset: 0.349  # 粗粒度搜索的角度偏移（弧度），用于快速初步匹配，但可能影响精度。
+    coarse_angle_resolution: 0.0349  # 粗粒度角度搜索的分辨率（弧度），较低的分辨率可以提高搜索速度，但可能降低精度。
+    minimum_angle_penalty: 0.9  # 最小角度惩罚系数，用于避免过大的角度误差，确保匹配的角度精度。
+    minimum_distance_penalty: 0.5  # 最小距离惩罚系数，用于避免过大的距离误差，确保匹配的空间精度。
+    use_response_expansion: true  # 是否使用响应扩展，启用后可以提高匹配的鲁棒性，减少局部最优解的影响。

@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "${default}",
+                "limitSymbolsToIncludedHeaders": false
+            },
+            "includePath": [
+                "/opt/ros/humble/include/**",
+                "/root/agrobot_ws/src/lslidar_driver/include/**",
+                "/usr/include/**",
+                "${workspaceFolder}/build/dlrobot_robot_msg/rosidl_generator_cpp",
+                "${workspaceFolder}/build/ackermann_msgs/rosidl_generator_cpp",
+                "${workspaceFolder}/src/turn_on_dlrobot_robot/include",
+                "${workspaceFolder}/install/serial/include"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-arm64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "c++14"
+        }
+    ],
+    "version": 4
+}

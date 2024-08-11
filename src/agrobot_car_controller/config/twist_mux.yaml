@@ -1,0 +1,27 @@
+# twist_mux 参数配置文件
+
+twist_mux:
+  # ROS参数定义
+  ros__parameters:
+    # 控制器定义
+    topics:
+      # 键盘控制器配置
+      keyboard:
+        topic: key_cmd_vel    # 键盘控制器发布控制指令的Topic
+        timeout: 0.5          # 控制器超时时间，单位：秒
+        priority: 80          # 控制器优先级，数值越大优先级越高
+
+    # 锁定义，用于紧急停止功能
+    locks:
+      safety_stop:
+        topic: safety_stop    # 安全停止锁触发的Topic
+        timeout: 0.0          # 锁超时时间，单位：秒，0.0表示立即响应
+        priority: 255         # 锁优先级，最高优先级确保安全停止操作优先执行
+
+    # 其他参数设置
+    merge_timeout: 0.2                   # 合并超时时间，单位：秒，允许旧控制器指令合并的时间
+    topic_suffix: ""                     # Topic后缀，用于允许多个twist_mux运行在同一ROS主题空间内
+    clear_delay: 0.0                     # 清除延迟时间，单位：秒，新控制器生效时清除旧指令缓存的延迟时间
+    allow_multiple_cmd_vel_publishers: false  # 是否允许多个控制器同时发布控制指令到cmd_vel_out Topic，设为false只允许一个控制器
+    default: ""                          # 默认控制器，在没有任何活动控制器时使用的控制器
+    verbose: false                       # 是否启用详细的调试输出模式，设为true会输出更多调试信息

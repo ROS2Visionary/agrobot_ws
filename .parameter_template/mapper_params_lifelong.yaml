@@ -1,0 +1,82 @@
+slam_toolbox:
+  ros__parameters:
+
+    # 插件参数
+    solver_plugin: solver_plugins::CeresSolver  # 使用CeresSolver作为求解器插件，这是一种高效的非线性优化库，广泛应用于SLAM和机器视觉领域。
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY  # 选择稀疏的Normal-Cholesky作为线性求解器，适用于处理稀疏矩阵结构的问题。
+    ceres_preconditioner: SCHUR_JACOBI  # 选择Schur-Jacobi作为预条件器，有助于加速求解过程，提高收敛性。
+    ceres_trust_strategy: LEVENBERG_MARQUARDT  # 使用Levenberg-Marquardt算法作为信赖域策略，这是求解非线性最小二乘问题的一种常用方法，平衡了梯度下降和高斯-牛顿方法的优点。
+    ceres_dogleg_type: TRADITIONAL_DOGLEG  # 采用传统的Dogleg算法，这是在信赖域优化中常见的混合方法，能够更好地处理复杂的优化问题。
+    ceres_loss_function: None  # 不使用额外的损失函数，意味着在优化过程中不进行错误修正处理。
+
+    # ROS 参数
+    odom_frame: odom  # 里程计坐标系的名称，表示机器人运动的相对坐标系，通常由轮式编码器提供数据。
+    map_frame: map  # 地图坐标系的名称，用于表示全局参考坐标系，机器人在此坐标系中进行定位和地图构建。
+    base_frame: base_footprint  # 机器人底盘的坐标系，表示机器人物理模型的基座位置，通常是所有其他坐标系的参考点。
+    scan_topic: /scan  # 激光扫描的ROS话题名称，用于接收来自激光雷达的扫描数据，进行地图构建和定位。
+    use_map_saver: true  # 启用地图保存功能，当此参数为true时，SLAM Toolbox会自动保存生成的地图文件。
+    mode: mapping  # 工作模式设置为mapping，即进行地图构建；也可以设置为localization模式用于定位。
+
+    # 终身SLAM参数
+    lifelong_search_use_tree: false  # 在终身SLAM中是否使用树结构进行优化，如果设置为true，算法可能更高效。
+    lifelong_minimum_score: 0.1  # 终身SLAM的最小匹配得分，低于此值的匹配将被忽略，以减少错误匹配的概率。
+    lifelong_iou_match: 0.85  # 终身SLAM中的IOU（交并比）匹配阈值，用于判断是否进行回环检测。
+    lifelong_node_removal_score: 0.04  # 节点移除的得分阈值，在终身SLAM中得分低于此值的节点将被移除，减少冗余信息。
+    lifelong_overlap_score_scale: 0.06  # 重叠得分的缩放系数，用于调整重叠区域在终身SLAM中的影响力。
+    lifelong_constraint_multiplier: 0.08  # 约束的缩放系数，用于调整终身SLAM中约束条件的影响力。
+    lifelong_nearby_penalty: 0.001  # 附近区域的惩罚系数，用于减少相邻节点的过度约束。
+    lifelong_candidates_scale: 0.03  # 候选匹配的缩放系数，用于调整匹配候选集的权重。
+
+    # 如果希望在启动时立即在某个位置继续建图
+    # 或者从充电桩开始建图，但这两者是互斥的，如果提供了位姿，则使用该位姿
+    #map_file_name: test_steve  # 地图文件的名称，如果提供此文件，SLAM Toolbox会从该地图开始继续建图。
+    #map_start_pose: [0.0, 0.0, 0.0]  # 地图起始位姿，表示机器人在地图中的初始位置（x, y, theta）。
+    #map_start_at_dock: true  # 是否从充电桩位置开始建图，如果设置为true，机器人会假设自己从充电桩位置出发。
+
+    debug_logging: false  # 是否启用调试日志，设置为false以减少不必要的日志输出。
+    throttle_scans: 1  # 处理激光扫描数据的频率，1表示处理所有扫描数据，增加此值可以减少处理频率，减轻系统负担。
+    transform_publish_period: 0.02  # 里程计变换的发布周期（秒），如果设置为0则不会发布变换数据。
+    map_update_interval: 5.0  # 地图更新的时间间隔（秒），每5秒更新一次地图，平衡实时性与系统开销。
+    resolution: 0.05  # 地图的分辨率（米/像素），较高的分辨率可以提高地图的精细度，但会增加计算开销。
+    min_laser_range: 0.0  # 激光雷达的最小测量范围（米），用于过滤掉距离过近的数据。
+    max_laser_range: 20.0  # 激光雷达的最大测量范围（米），超过此距离的测量数据将被忽略。
+    minimum_time_interval: 0.5  # 激光扫描的最小时间间隔（秒），用于避免过于频繁的数据处理，减少系统负担。
+    transform_timeout: 0.2  # 变换的超时时间（秒），超过此时间未能获取到变换数据会被视为超时。
+    tf_buffer_duration: 10.0  # TF变换的缓存持续时间（秒），在此时间段内保持历史变换信息，确保系统能够正确查询变换数据。
+    stack_size_to_use: 40000000  # 程序需要的堆栈大小（字节），处理大型地图时需要较大的堆栈空间以避免内存溢出。
+
+    # 通用参数
+    use_scan_matching: true  # 是否启用扫描匹配功能，启用后可以显著提高地图构建和定位的精度。
+    use_scan_barycenter: true  # 是否使用扫描重心进行匹配，启用后可以提高匹配的稳定性。
+    minimum_travel_distance: 0.5  # 机器人需要移动的最小距离（米）才会更新地图，用于避免不必要的更新。
+    minimum_travel_heading: 0.5  # 机器人需要转动的最小角度（弧度）才会更新地图，用于避免频繁更新。
+    scan_buffer_size: 10  # 扫描缓冲区的大小，用于存储最近的激光扫描数据以供匹配和分析。
+    scan_buffer_maximum_scan_distance: 10.0  # 缓冲区中允许的最大扫描距离（米），超过此距离的数据将被丢弃。
+    link_match_minimum_response_fine: 0.1  # 细粒度匹配的最小响应值，低于此值的匹配结果将被视为不可靠。
+    link_scan_maximum_distance: 1.5  # 链接扫描的最大距离（米），用于确定哪些扫描结果可以作为有效匹配的依据。
+    loop_search_maximum_distance: 3.0  # 回环搜索的最大距离（米），用于识别和闭合回环，减少地图漂移。
+    do_loop_closing: true  # 是否启用回环闭合功能，启用后可以减少地图的累积误差，防止漂移。
+    loop_match_minimum_chain_size: 10  # 回环匹配的最小链条大小，较小的值可以更早地检测回环，但可能会引入误匹配。
+    loop_match_maximum_variance_coarse: 3.0  # 粗粒度回环匹配的最大方差，控制回环匹配的容忍度，防止过度匹配。
+    loop_match_minimum_response_coarse: 0.35  # 粗粒度回环匹配的最小响应值，用于过滤低质量的回环匹配结果。
+    loop_match_minimum_response_fine: 0.45  # 细粒度回环匹配的最小响应值，用于提高回环闭合的准确性。
+
+    # 相关参数 - 相关参数
+    correlation_search_space_dimension: 0.5  # 相关搜索空间的维度（米），定义了搜索的空间范围。
+    correlation_search_space_resolution: 0.01  # 相关搜索空间的分辨率（米），较高的分辨率可以提高匹配精度，但会增加计算量。
+    correlation_search_space_smear_deviation: 0.1  # 相关搜索空间的偏差（米），用于平滑和处理噪声数据。
+
+    # 相关参数 - 回环闭合参数
+    loop_search_space_dimension: 8.0  # 回环搜索空间的维度（米），定义回环检测的搜索范围。
+    loop_search_space_resolution: 0.05  # 回环搜索空间的分辨率（米），较高的分辨率可以提高回环检测的精度，但可能增加计算开销。
+    loop_search_space_smear_deviation: 0.03  # 回环搜索空间的偏差（米），用于在回环检测时平滑处理噪声数据。
+
+    # 扫描匹配参数
+    distance_variance_penalty: 0.5  # 距离方差的惩罚系数，用于限制距离误差的影响，减少错误匹配。
+    angle_variance_penalty: 1.0  # 角度方差的惩罚系数，用于限制角度误差的影响，确保匹配结果更精确。
+    fine_search_angle_offset: 0.00349  # 细粒度搜索的角度偏移（弧度），影响匹配精度的调节参数。
+    coarse_search_angle_offset: 0.349  # 粗粒度搜索的角度偏移（弧度），用于加速初步匹配的过程，可能影响匹配的初始精度。
+    coarse_angle_resolution: 0.0349  # 粗粒度角度搜索的分辨率（弧度），较低的分辨率可以提高搜索速度，但可能降低精度。
+    minimum_angle_penalty: 0.9  # 最小角度惩罚系数，用于避免过大的角度误差，确保匹配的角度精度。
+    minimum_distance_penalty: 0.5  # 最小距离惩罚系数，用于避免过大的距离误差，确保匹配的空间精度。
+    use_response_expansion: true  # 是否使用响应扩展，启用后可以提高匹配的鲁棒性，减少局部最优解的影响。

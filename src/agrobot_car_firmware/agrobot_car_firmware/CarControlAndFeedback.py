@@ -254,8 +254,8 @@ def main(args=None):
     # test_thread.start()
 
     # 启动子线程接收机器人发出的数据
-    accept_agrobot_data_thread = threading.Thread(target=node.read_data)
-    accept_agrobot_data_thread.start()
+    # accept_agrobot_data_thread = threading.Thread(target=node.read_data)
+    # accept_agrobot_data_thread.start()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

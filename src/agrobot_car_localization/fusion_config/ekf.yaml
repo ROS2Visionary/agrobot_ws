@@ -1,0 +1,216 @@
+ekf_filter_node:
+    ros__parameters:
+        # 滤波器输出位置估计的频率，以Hz为单位。请注意，滤波器在收到至少一个输入消息之前不会开始计算。
+        # 然后它将按照这里指定的频率连续运行，无论是否收到更多的测量数据。如果未指定，默认值为30 Hz。
+        frequency: 30.0
+
+        # 我们认为传感器超时的时间间隔（以秒为单位）。在这种情况下，我们将在不修正EKF的情况下进行预测循环。
+        # 这个参数可以被认为是滤波器生成新输出的最小频率。如果未指定，默认值为1 / frequency。
+        sensor_timeout: 0.1
+
+        # ekf_localization_node和ukf_localization_node都使用3D全向运动模型。如果将此参数设置为true，
+        # 则状态估计中不会使用3D信息。如果你在平面环境中操作，并希望忽略可能由IMU检测到的地面平面中的微小变化，
+        # 请使用此设置。如果未指定，默认值为false。
+        two_d_mode: false
+
+        # 使用此参数为ekf_localization_node生成的变换提供一个偏移量。这可以用于变换的未来时间戳，
+        # 这是与某些其他包交互所需的。如果未指定，默认值为0.0。
+        transform_time_offset: 0.0
+
+        # 使用此参数指定tf监听器应等待变换可用的时间长度。如果未指定，默认值为0.0。
+        transform_timeout: 0.0
+
+        # 如果遇到问题，请将此设置为true，然后回显/diagnostics_agg话题，以查看节点是否对某些设置或数据不满意。
+        print_diagnostics: true
+
+        # 调试设置。不建议普通用户使用。将大量信息输出到由debug_out_file指定的文件中。
+        # 请注意，将此设置为true会对节点性能产生严重影响。如果未指定，默认值为false。
+        debug: false
+
+        # 如果未指定，默认文件为"robot_localization_debug.txt"。请指定完整路径。
+        debug_out_file: /path/to/debug/file.txt
+
+        # 是否允许旧的测量值导致重新发布更新的状态。
+        permit_corrected_publication: false
+
+        # 是否发布加速度状态。如果未指定，默认值为false。
+        publish_acceleration: false
+
+        # 是否通过/tf话题广播变换。如果未指定，默认值为true。
+        publish_tf: true
+
+        # REP-105 (http://www.ros.org/reps/rep-0105.html) 指定了四个主要坐标系：base_link, odom, map 和 earth。
+        # base_link 是固定在机器人上的坐标系。odom 和 map 均为固定于世界的坐标系。
+        # 机器人在 odom 坐标系中的位置会随时间漂移，但在短期内是准确的且应保持连续。
+        # 因此，odom 坐标系是执行局部运动规划的最佳框架。map 坐标系与 odom 坐标系类似，是一个固定于世界的坐标系，
+        # 它包含了机器人最全局准确的位置估计，但可能因GPS数据或地图定位节点的校正而发生跳跃。
+        # earth 坐标系用于通过提供一个公共参考框架来关联多个地图坐标系。
+        # ekf_localization_node 和 ukf_localization_node 不涉及 earth 坐标系。
+        # 以下是如何使用这些设置的说明：
+        # 1. 设置 map_frame、odom_frame 和 base_link_frame 为系统中适当的帧名称。
+        #   1a. 如果系统中没有 map_frame，只需删除它，并确保 "world_frame" 设置为 odom_frame 的值。
+        # 2. 如果你融合的是连续位置数据（如轮编码器里程计、视觉里程计或IMU数据），请将 "world_frame" 设置为 odom_frame 的值。
+        #    这是 robot_localization 状态估计节点的默认行为。
+        # 3. 如果你融合的是可能发生跳跃的全局绝对位置数据（如GPS或地标观测位置更新），那么：
+        #   3a. 将 "world_frame" 设置为 map_frame 的值
+        #   3b. 确保有其他东西生成 odom->base_link 变换。请注意，这甚至可以是 robot_localization 的另一个状态估计节点！
+        #       但该实例不应融合全局数据。
+        map_frame: map              # 如果未指定，默认值为 "map"
+        odom_frame: odom            # 如果未指定，默认值为 "odom"
+        base_link_frame: base_link  # 如果未指定，默认值为 "base_link"
+        world_frame: odom           # 如果未指定，默认值为 odom_frame 的值
+
+        # 滤波器接受任意数量的每个输入消息类型（nav_msgs/Odometry, geometry_msgs/PoseWithCovarianceStamped,
+        # geometry_msgs/TwistWithCovarianceStamped, sensor_msgs/Imu）。要添加输入，只需将序列中的下一个数字附加到其 "base" 名称，
+        # 例如 odom0, odom1, twist0, twist1, imu0, imu1, imu2 等。这些参数显然没有默认值，必须指定。
+        odom0: example/odom
+
+        # 每个传感器读取都会更新滤波器的某些或所有状态。这些选项可以让你更好地控制哪些测量值会输入到滤波器中。
+        # 例如，如果你有一个里程计消息作为输入，但只想使用它的Z位置值，则将整个向量设置为false，除了第三个条目。
+        # 值的顺序是 x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az。
+        # 请注意，不同的消息类型并不提供滤波器估计的所有状态变量。
+        # 例如，TwistWithCovarianceStamped消息没有位置信息，因此在这种情况下，前六个值没有意义。
+        # 如果未指定，每个向量默认为全 false，因此对于每个传感器，这个参数实际上是必需的。
+        odom0_config: [true,  true,  false,
+                       false, false, false,
+                       false, false, false,
+                       false, false, true,
+                       false, false, false]
+
+        # 如果你有高频数据或以低频参数值运行，则可能希望增加订阅队列的大小，以便融合更多测量值。
+        odom0_queue_size: 2
+
+        # [高级设置] 在用两个传感器测量一个位置变量时，可能会出现两个传感器都低估其协方差的情况。
+        # 这可能导致滤波器在接收每个测量值时快速来回跳动。在这种情况下，通常建议（a）校正测量协方差，
+        # 或者（b）如果其中一个传感器也测量了速度，则让一个传感器测量位置，另一个测量速度。
+        # 然而，执行（a）或（b）并不总是可行，因此我们提供了差分参数。
+        # 当启用差分模式时，所有绝对位置数据通过对绝对位置测量进行微分转换为速度数据。
+        # 然后，这些速度数据将按常规方式进行积分。注意：这仅适用于提供位置信息的传感器；
+        # 为扭转测量设置差分对其无效。
+        odom0_differential: false
+
+        # [高级设置] 当节点启动时，如果此参数为true，则第一个测量值将被视为所有未来测量值的 "零点"。
+        # 尽管你可以通过差分参数实现相同的效果，但关键区别在于相对参数不会在积分前将测量值转换为速度。
+        # 如果你只是希望测量从某个传感器开始时为0，请将此参数设置为true。
+        odom0_relative: false
+
+        # [高级设置] 是否使用child_frame_id的起始位置作为里程计的起点。
+        # 注意：这与将 odom0_relative 设置为 true 不同，因为当 child_frame 与 base_link_frame 不同时，
+        # base_link 的旋转会影响 child_frame 的平移。
+        # 将其设置为 true 以融合刚性连接到 base_link 但与 base_link 有非零偏移的次要里程计源。
+        odom0_pose_use_child_frame: false
+
+
+        # [高级设置] 如果您的数据容易受到异常值的影响，可以使用这些阈值设置（以马氏距离表示）来控制传感器测量值与当前车辆状态的距离。
+        # 每个参数如果未指定，默认为 numeric_limits<double>::max()。强烈建议在不需要时删除这些参数。
+        # 数据是在姿态和扭转变量的层级上指定的，而不是针对每个变量单独指定的。
+        # 对于同时具有姿态和扭转数据的消息，该参数指定了我们应用阈值的消息部分。
+        odom0_pose_rejection_threshold: 5.0
+        odom0_twist_rejection_threshold: 1.0
+
+        # 进一步的输入参数示例
+        odom1: example/odom2
+        odom1_config: [false, false, true,
+                      false, false, false,
+                      false, false, false,
+                      false, false, true,
+                      false, false, false]
+        odom1_differential: false
+        odom1_relative: true
+        odom1_queue_size: 2
+        odom1_pose_rejection_threshold: 2.0
+        odom1_twist_rejection_threshold: 0.2
+        pose0: example/pose
+        pose0_config: [true,  true,  false,
+                      false, false, false,
+                      false, false, false,
+                      false, false, false,
+                      false, false, false]
+        pose0_differential: true
+        pose0_relative: false
+        pose0_queue_size: 5
+        pose0_rejection_threshold: 2.0  # 注意参数名称的差异
+
+        twist0: example/twist
+        twist0_config: [false, false, false,
+                        false, false, false,
+                        true,  true,  true,
+                        false, false, false,
+                        false, false, false]
+        twist0_queue_size: 3
+        twist0_rejection_threshold: 2.0
+
+        imu0: example/imu
+        imu0_config: [false, false, false,
+                      true,  true,  true,
+                      false, false, false,
+                      true,  true,  true,
+                      true,  true,  true]
+        imu0_differential: false
+        imu0_relative: true
+        imu0_queue_size: 5
+        imu0_pose_rejection_threshold: 0.8                 # 注意参数名称的差异
+        imu0_twist_rejection_threshold: 0.8                #
+        imu0_linear_acceleration_rejection_threshold: 0.8  #
+
+        # [高级设置] 某些IMU会自动移除重力加速度，而有些则不会。如果您的IMU不会，请设置为 true，并确保您的数据符合 REP-103 标准，
+        # 尤其是数据需要位于 ENU 坐标系中。
+        imu0_remove_gravitational_acceleration: true
+
+        # [高级设置] EKF 和 UKF 模型遵循标准的预测/修正周期。在预测期间，如果没有加速度参考，则时间 t+1 的速度将预测为与时间 t 的速度相同。
+        # 在修正期间，此预测值与测量值融合以生成新的速度估计值。这可能会导致问题，因为最终速度实际上是旧速度和新速度的加权平均值。
+        # 当此速度被积分到新的姿态中时，可能会导致收敛缓慢。这种效应在旋转期间使用 LIDAR 数据时尤为明显。
+        # 为了解决这个问题，用户可以尝试增加相关速度变量的 process_noise_covariance（过程噪声协方差），
+        # 或减少测量值中的相关变量的方差。此外，用户还可以利用机器人在预测时发出的控制命令。
+        # 如果使用控制命令，它将被转换为加速度项并用于预测。
+        # 请注意，如果某输入提供了相关变量的加速度测量值，控制项将被忽略。
+        # 是否在预测期间使用控制输入。默认为 false。
+        use_control: true
+
+        # 输入（假定为 cmd_vel）是 geometry_msgs/Twist 还是 geometry_msgs/TwistStamped 消息。默认为 false。
+        stamped_control: false
+
+        # 用于预测的最后发出的控制命令的超时时间。默认为 0.2。
+        control_timeout: 0.2
+
+        # 控制哪些速度变量。顺序为 vx, vy, vz, vroll, vpitch, vyaw。
+        control_config: [true, false, false, false, false, true]
+
+        # 限制加速度项的最大值，应与您的机器人运动学匹配。
+        acceleration_limits: [1.3, 0.0, 0.0, 0.0, 0.0, 3.4]
+
+        # 机器人加速度和减速度的限制不一定相同。
+        deceleration_limits: [1.3, 0.0, 0.0, 0.0, 0.0, 4.5]
+
+        # 如果您的机器人不能瞬间达到加速度极限，可以使用这些增益控制允许的变化量。
+        acceleration_gains: [0.8, 0.0, 0.0, 0.0, 0.0, 0.9]
+
+        # 如果您的机器人不能瞬间达到减速度极限，可以使用这些增益控制允许的变化量。
+        deceleration_gains: [1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+
+        # [高级设置] 过程噪声协方差矩阵的调优可能较为困难，并且每个应用可能有所不同，因此将其作为配置参数公开。
+        # 该矩阵表示我们在每次预测步骤后添加到总误差中的噪声。运动模型越符合您的系统，这些值就可以越小。
+        # 但是，如果用户发现某个变量的收敛速度较慢，一种方法是增加相关变量的 process_noise_covariance 对角值，
+        # 这将导致滤波器的预测误差更大，从而在修正期间更信任输入的测量值。值的顺序为 x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az。
+        # 如果未指定，默认为下方的矩阵。
+        # 注意：协方差矩阵的指定可能较为繁琐，因此该包中的所有矩阵参数都支持完全指定或仅指定对角值。
+        process_noise_covariance: [0.05, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.05, 0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.06, 0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.03, 0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.03, 0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.06, 0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.025, 0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.025, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.04, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.01, 0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.01, 0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.02, 0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.01, 0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.01, 0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.015]
+
+        # [高级设置] 这表示状态估计误差协方差矩阵的初始值。将对角值（方差）设置为较大值将导致变量初始测量时快速收敛。
+        # 用户应注意不要对不会直接测量的变量使用较大的值。值的顺序为 x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az。
+        # 如果未指定，默认使用下方对角值。在此示例中，我们仅指定矩阵的对角值。
+        initial_estimate_covariance: [1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9]

@@ -1,0 +1,105 @@
+ekf_filter_node_odom:
+  ros__parameters:
+    frequency: 30.0  # 运行循环的频率，单位为赫兹
+    sensor_timeout: 0.1  # 传感器超时时间，单位为秒
+    two_d_mode: false  # 是否启用二维模式
+    transform_time_offset: 0.0  # 变换的时间偏移，单位为秒
+    transform_timeout: 0.0  # 变换的超时时间，单位为秒
+    print_diagnostics: true  # 是否打印诊断信息
+    debug: false  # 是否启用调试模式
+
+    map_frame: map  # 地图框架的名称
+    odom_frame: odom  # 里程计框架的名称
+    base_link_frame: base_link  # 机器人基准框架的名称
+    world_frame: odom  # 世界框架的名称
+
+    odom0: odometry/wheel  # 里程计数据源的名称
+    odom0_config: [false, false, false,
+                  false, false, false,
+                  true,  true,  true,
+                  false, false, true,
+                  false, false, false]  # 里程计配置
+    odom0_queue_size: 10  # 里程计数据队列大小
+    odom0_differential: false  # 是否启用微分模式
+    odom0_relative: false  # 是否使用相对模式
+
+    imu0: imu/data  # IMU数据源的名称
+    imu0_config: [false, false, false,
+                  true,  true,  false,
+                  false, false, false,
+                  true,  true,  true,
+                  true,  true,  true]  # IMU配置
+    imu0_differential: false  # 是否启用微分模式
+    imu0_relative: false  # 是否使用相对模式
+    imu0_queue_size: 10  # IMU数据队列大小
+    imu0_remove_gravitational_acceleration: true  # 是否移除重力加速度
+
+    use_control: false  # 是否使用控制输入
+
+    process_noise_covariance: [1e-3, 1e-3, 1e-3, 0.3, 0.3, 0.01, 0.5, 0.5, 0.1, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3]  # 过程噪声协方差矩阵
+
+    initial_estimate_covariance: [1e-9, 1e-9, 1e-9, 1.0, 1.0, 1e-9, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]  # 初始估计协方差矩阵
+
+ekf_filter_node_map:
+  ros__parameters:
+    frequency: 30.0  # 运行循环的频率，单位为赫兹
+    sensor_timeout: 0.1  # 传感器超时时间，单位为秒
+    two_d_mode: false  # 是否启用二维模式
+    transform_time_offset: 0.0  # 变换的时间偏移，单位为秒
+    transform_timeout: 0.0  # 变换的超时时间，单位为秒
+    print_diagnostics: true  # 是否打印诊断信息
+    debug: false  # 是否启用调试模式
+
+    map_frame: map  # 地图框架的名称
+    odom_frame: odom  # 里程计框架的名称
+    base_link_frame: base_link  # 机器人基准框架的名称
+    world_frame: map  # 世界框架的名称
+
+    odom0: odometry/wheel  # 里程计数据源的名称
+    odom0_config: [false, false, false,
+                  false, false, false,
+                  true,  true,  true,
+                  false, false, true,
+                  false, false, false]  # 里程计配置
+    odom0_queue_size: 10  # 里程计数据队列大小
+    odom0_differential: false  # 是否启用微分模式
+    odom0_relative: false  # 是否使用相对模式
+
+    odom1: odometry/gps  # GPS数据源的名称
+    odom1_config: [true,  true,  false,
+                  false, false, false,
+                  false, false, false,
+                  false, false, false,
+                  false, false, false]  # GPS配置
+    odom1_queue_size: 10  # GPS数据队列大小
+    odom1_differential: false  # 是否启用微分模式
+    odom1_relative: false  # 是否使用相对模式
+
+    imu0: imu/data  # IMU数据源的名称
+    imu0_config: [false, false, false,
+                  true,  true,  false,
+                  false, false, false,
+                  true,  true,  true,
+                  true,  true,  true]  # IMU配置
+    imu0_differential: false  # 是否启用微分模式
+    imu0_relative: false  # 是否使用相对模式
+    imu0_queue_size: 10  # IMU数据队列大小
+    imu0_remove_gravitational_acceleration: true  # 是否移除重力加速度
+
+    use_control: false  # 是否使用控制输入
+
+    process_noise_covariance: [1.0, 1.0, 1e-3, 0.3, 0.3, 0.01, 0.5, 0.5, 0.1, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3]  # 过程噪声协方差矩阵
+
+    initial_estimate_covariance: [1.0, 1.0, 1e-9, 1.0, 1.0, 1e-9, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]  # 初始估计协方差矩阵
+
+navsat_transform:
+  ros__parameters:
+    frequency: 30.0  # 运行循环的频率，单位为赫兹
+    delay: 3.0  # 计算UTM框架到世界框架的变换前的延迟时间，单位为秒
+    magnetic_declination_radians: 0.0429351  # 当前纬度/经度（55.944831, -3.186998）的磁偏角，单位为弧度
+    yaw_offset: 1.570796327  # IMU航向角相对于磁北方向的偏移量，单位为弧度
+    zero_altitude: false  # 是否将输出的里程计消息中的高度设置为0
+    broadcast_utm_transform: true  # 是否广播UTM变换
+    publish_filtered_gps: true  # 是否发布滤波后的GPS数据
+    use_odometry_yaw: false  # 是否使用里程计的航向角
+    wait_for_datum: false  # 是否等待基准点数据

@@ -1,0 +1,42 @@
+### ukf config file ###
+ukf_filter_node:
+    ros__parameters:
+        # 主运行循环的频率
+        frequency: 30.0
+
+        # 延迟时间（以秒为单位），在此之后我们计算从UTM框架到您的世界框架的变换。如果将use_odometry_yaw设置为true，这一点尤其重要。默认为0。
+        delay: 3.0
+
+        # 请阅读：与robot_localization中的所有节点一样，本节点假设您的IMU数据是以ENU框架报告的。
+        # 许多IMU以NED框架报告数据，因此在使用前，请确保您的数据在正确的框架中。
+
+        # 如果您的IMU没有考虑磁偏角，请在此处输入您所在位置的磁偏角值。
+        # 如果您不知道它的值，请访问http://www.ngdc.noaa.gov/geomag-web/（确保将值转换为弧度）。此参数是强制性的。
+        magnetic_declination_radians: 0.0
+
+        # 在将magentic_declination_radians值加到IMU的航向角之后，您的IMU应该在面向东时报告0。如果没有，请在此处输入偏移量。默认为0。
+        yaw_offset: 0.0
+
+        # 如果此参数为true，则在输出的里程计消息中将高度设置为0。默认为false。
+        zero_altitude: false
+
+        # 如果此参数为true，则world_frame->utm的变换将被广播，以供其他节点使用。默认为false。
+        broadcast_utm_transform: false
+
+        # 如果此参数为true，则utm->world_frame的变换将被发布，而不是world_frame->utm的变换。请注意，仍需启用broadcast_utm_transform。默认为false。
+        broadcast_utm_transform_as_parent_frame: false
+
+        # 如果此参数为true，则所有接收到的里程计数据将被转换回纬度/经度并作为NavSatFix消息发布到/gps/filtered。默认为false。
+        publish_filtered_gps: false
+
+        # 如果此参数为true，节点将忽略IMU数据，并从里程计源（通常是来自robot_localization状态估计节点的/odometry/filtered话题）获取航向。
+        # 使用此选项时要小心！您的里程计源中的航向值*必须*是相对于世界的，例如，如果您的航向数据仅基于积分速度，则不能使用里程计源的航向。默认为false。
+        use_odometry_yaw: false
+
+        # 如果为true，将从下面的'datum'参数中检索基准点，如果可用的话。
+        # 如果不存在'datum'参数，navsat_transform_node将等待用户通过SetDatum服务消息调用'datum'服务。默认为false。
+        wait_for_datum: false
+
+        # 用户可以使用此参数来指定原点（基准点），而不是使用第一个GPS位置和基于IMU的航向作为局部框架的原点。
+        # 参数中的字段表示以十进制度表示的纬度和经度，以及以弧度表示的航向。由于navsat_transform_node假设标准的ENU框架，0度航向对应于东。
+        datum: [55.944904, -3.186693, 0.0]

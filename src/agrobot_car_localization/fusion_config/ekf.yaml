@@ -2,7 +2,7 @@ ekf_filter_node:
     ros__parameters:
         # 滤波器输出位置估计的频率，以Hz为单位。请注意，滤波器在收到至少一个输入消息之前不会开始计算。
         # 然后它将按照这里指定的频率连续运行，无论是否收到更多的测量数据。如果未指定，默认值为30 Hz。
-        frequency: 30.0
+        frequency: 10.0
 
         # 我们认为传感器超时的时间间隔（以秒为单位）。在这种情况下，我们将在不修正EKF的情况下进行预测循环。
         # 这个参数可以被认为是滤波器生成新输出的最小频率。如果未指定，默认值为1 / frequency。
@@ -11,7 +11,7 @@ ekf_filter_node:
         # ekf_localization_node和ukf_localization_node都使用3D全向运动模型。如果将此参数设置为true，
         # 则状态估计中不会使用3D信息。如果你在平面环境中操作，并希望忽略可能由IMU检测到的地面平面中的微小变化，
         # 请使用此设置。如果未指定，默认值为false。
-        two_d_mode: false
+        two_d_mode: true  # 修改为true，确保仅使用平面运动的2D信息
 
         # 使用此参数为ekf_localization_node生成的变换提供一个偏移量。这可以用于变换的未来时间戳，
         # 这是与某些其他包交互所需的。如果未指定，默认值为0.0。
@@ -57,13 +57,13 @@ ekf_filter_node:
         #       但该实例不应融合全局数据。
         map_frame: map              # 如果未指定，默认值为 "map"
         odom_frame: odom            # 如果未指定，默认值为 "odom"
-        base_link_frame: base_link  # 如果未指定，默认值为 "base_link"
+        base_link_frame: base_footprint  # 如果未指定，默认值为 "base_link"
         world_frame: odom           # 如果未指定，默认值为 odom_frame 的值
 
         # 滤波器接受任意数量的每个输入消息类型（nav_msgs/Odometry, geometry_msgs/PoseWithCovarianceStamped,
         # geometry_msgs/TwistWithCovarianceStamped, sensor_msgs/Imu）。要添加输入，只需将序列中的下一个数字附加到其 "base" 名称，
         # 例如 odom0, odom1, twist0, twist1, imu0, imu1, imu2 等。这些参数显然没有默认值，必须指定。
-        odom0: example/odom
+        odom0: odom
 
         # 每个传感器读取都会更新滤波器的某些或所有状态。这些选项可以让你更好地控制哪些测量值会输入到滤波器中。
         # 例如，如果你有一个里程计消息作为输入，但只想使用它的Z位置值，则将整个向量设置为false，除了第三个条目。
@@ -71,14 +71,14 @@ ekf_filter_node:
         # 请注意，不同的消息类型并不提供滤波器估计的所有状态变量。
         # 例如，TwistWithCovarianceStamped消息没有位置信息，因此在这种情况下，前六个值没有意义。
         # 如果未指定，每个向量默认为全 false，因此对于每个传感器，这个参数实际上是必需的。
-        odom0_config: [true,  true,  false,
-                       false, false, false,
-                       false, false, false,
-                       false, false, true,
-                       false, false, false]
+        odom0_config: [true,  true,  false,  # 仅融合x、y位置，不融合z位置
+                       false, false, true,   # 仅融合yaw旋转角度，不融合roll和pitch
+                       true,  true,  false,  # 仅融合x、y速度，不融合z速度
+                       false, false, true,   # 仅融合绕z轴的角速度，不融合roll和pitch角速度
+                       false, false, false]  # 不融合加速度变量
 
         # 如果你有高频数据或以低频参数值运行，则可能希望增加订阅队列的大小，以便融合更多测量值。
-        odom0_queue_size: 2
+        odom0_queue_size: 100
 
         # [高级设置] 在用两个传感器测量一个位置变量时，可能会出现两个传感器都低估其协方差的情况。
         # 这可能导致滤波器在接收每个测量值时快速来回跳动。在这种情况下，通常建议（a）校正测量协方差，
@@ -100,7 +100,6 @@ ekf_filter_node:
         # 将其设置为 true 以融合刚性连接到 base_link 但与 base_link 有非零偏移的次要里程计源。
         odom0_pose_use_child_frame: false
 
-
         # [高级设置] 如果您的数据容易受到异常值的影响，可以使用这些阈值设置（以马氏距离表示）来控制传感器测量值与当前车辆状态的距离。
         # 每个参数如果未指定，默认为 numeric_limits<double>::max()。强烈建议在不需要时删除这些参数。
         # 数据是在姿态和扭转变量的层级上指定的，而不是针对每个变量单独指定的。
@@ -108,47 +107,17 @@ ekf_filter_node:
         odom0_pose_rejection_threshold: 5.0
         odom0_twist_rejection_threshold: 1.0
 
-        # 进一步的输入参数示例
-        odom1: example/odom2
-        odom1_config: [false, false, true,
-                      false, false, false,
-                      false, false, false,
-                      false, false, true,
-                      false, false, false]
-        odom1_differential: false
-        odom1_relative: true
-        odom1_queue_size: 2
-        odom1_pose_rejection_threshold: 2.0
-        odom1_twist_rejection_threshold: 0.2
-        pose0: example/pose
-        pose0_config: [true,  true,  false,
-                      false, false, false,
-                      false, false, false,
-                      false, false, false,
-                      false, false, false]
-        pose0_differential: true
-        pose0_relative: false
-        pose0_queue_size: 5
-        pose0_rejection_threshold: 2.0  # 注意参数名称的差异
+        imu0: imu
+        # 值的顺序为x、y、z、roll、pitch、yaw、vx、vy、vz、vroll、vpitch、vyaw、ax、ay、az。
+        imu0_config: [false, false, false,  # 不融合位置变量
+                      false,  false,  true,  # 仅融合yaw旋转角度
+                      false, false, false,  # 不融合速度变量
+                      false, false, true,  # 仅融合绕z轴的角速度
+                      true,  true,  false]  # 仅融合水平面的加速度，不融合z轴加速度
 
-        twist0: example/twist
-        twist0_config: [false, false, false,
-                        false, false, false,
-                        true,  true,  true,
-                        false, false, false,
-                        false, false, false]
-        twist0_queue_size: 3
-        twist0_rejection_threshold: 2.0
-
-        imu0: example/imu
-        imu0_config: [false, false, false,
-                      true,  true,  true,
-                      false, false, false,
-                      true,  true,  true,
-                      true,  true,  true]
         imu0_differential: false
         imu0_relative: true
-        imu0_queue_size: 5
+        imu0_queue_size: 100
         imu0_pose_rejection_threshold: 0.8                 # 注意参数名称的差异
         imu0_twist_rejection_threshold: 0.8                #
         imu0_linear_acceleration_rejection_threshold: 0.8  #
@@ -194,12 +163,12 @@ ekf_filter_node:
         # 这将导致滤波器的预测误差更大，从而在修正期间更信任输入的测量值。值的顺序为 x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az。
         # 如果未指定，默认为下方的矩阵。
         # 注意：协方差矩阵的指定可能较为繁琐，因此该包中的所有矩阵参数都支持完全指定或仅指定对角值。
-        process_noise_covariance: [0.05, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.05, 0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.06, 0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.03, 0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.0,    0.03, 0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.06, 0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+        process_noise_covariance: [0.1, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.1,  0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.1,  0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.05,  0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.05,  0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.1,   0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.025, 0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.025, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.04, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,

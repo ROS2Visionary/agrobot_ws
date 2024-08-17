@@ -13,14 +13,13 @@ class get_navigation_m3(Node):
         # 创建一个 TransformListener 对象，用于监听 tf 变换
         self.tf_listener = TransformListener(self.tf_buffer, self)
         # 创建一个定时器，每秒调用一次 timer_callback 方法
-        self.timer = self.create_timer(1.0, self.timer_callback)
+        self.timer = self.create_timer(2.0, self.timer_callback)
 
     def timer_callback(self):
         try:
             # 获取当前时间
             now = rclpy.time.Time()
-            # 查找从 'map' 坐标系到 'base_footprint' 坐标系的变换
-            trans = self.tf_buffer.lookup_transform('map', 'odom', now, Duration(seconds=1.0))
+            trans = self.tf_buffer.lookup_transform('map', 'base_footprint', now, Duration(seconds=1.0))
             
             # 提取平移信息
             x = trans.transform.translation.x

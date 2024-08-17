@@ -15,54 +15,55 @@ slam_toolbox:
     mode: mapping #localization  # SLAM模式，选择mapping（建图）模式，可切换为localization（定位）模式
 
     # 如果希望在启动时加载一个已有的地图文件并初始化位姿，可以在此设置
-    #map_file_name: test_steve  # 地图文件名称
-    #map_start_pose: [5.0, 1.0, 0.0]  # 地图初始位姿[x, y, theta]
+    map_file_name: '/root/agrobot_ws/src/agrobot_car_mapping/maps/laboratory' # 地图文件的名称，如果提供此文件，将从该地图开始定位或继续建图。
+    map_start_pose: [-0.277, 4.281, -1.5611132853006096] # 地图中的起始位姿，表示机器人在地图中的初始位置（x, y, theta）。
+    
 
     debug_logging: false  # 是否启用调试日志记录
-    throttle_scans: 1  # 扫描频率的减缓因子
-    transform_publish_period: 0.02 #如果为0，则不发布里程计变换 # 发布坐标变换的周期
-    map_update_interval: 5.0  # 地图更新的时间间隔（秒）
+    throttle_scans: 5  # 扫描频率的减缓因子
+    transform_publish_period: 0.05 #如果为0，则不发布里程计变换 # 发布坐标变换的周期
+    map_update_interval: 2.0  # 地图更新的时间间隔（秒）
     resolution: 0.05  # 地图的分辨率（米/像素）
-    min_laser_range: 0.0 #用于栅格化图像的激光最小范围
-    max_laser_range: 20.0 #用于栅格化图像的激光最大范围
-    minimum_time_interval: 0.5  # 两次扫描之间的最小时间间隔（秒）
-    transform_timeout: 0.2  # 坐标变换的超时时间（秒）
+    min_laser_range: 0.02 #用于栅格化图像的激光最小范围
+    max_laser_range: 12.0 #用于栅格化图像的激光最大范围
+    minimum_time_interval: 1.0  # 两次扫描之间的最小时间间隔（秒）
+    transform_timeout: 0.5  # 坐标变换的超时时间（秒）
     tf_buffer_duration: 30.  # tf缓冲区的持续时间（秒）
-    stack_size_to_use: 40000000 #程序所需的栈大小，以序列化大型地图
+    stack_size_to_use: 80000000 #程序所需的栈大小，以序列化大型地图
 
     # 通用参数
     use_scan_matching: true  # 启用扫描匹配
     use_scan_barycenter: true  # 使用扫描重心作为匹配参考
-    minimum_travel_distance: 0.5  # 机器人最小移动距离（米）
-    minimum_travel_heading: 0.5  # 机器人最小转动角度（弧度）
-    scan_buffer_size: 3  # 扫描缓存的大小
+    minimum_travel_distance: 0.0005  # 机器人最小移动距离（米）
+    minimum_travel_heading: 0.0005  # 机器人最小转动角度（弧度）
+    scan_buffer_size: 1000  # 扫描缓存的大小
     scan_buffer_maximum_scan_distance: 10.0  # 扫描缓存的最大距离（米）
     link_match_minimum_response_fine: 0.1  # 精细匹配的最小响应阈值
     link_scan_maximum_distance: 1.5  # 扫描之间的最大距离，用于匹配（米）
     do_loop_closing: true  # 启用闭环检测
     loop_match_minimum_chain_size: 3  # 闭环匹配的最小链长
     loop_match_maximum_variance_coarse: 3.0  # 粗匹配的最大方差
-    loop_match_minimum_response_coarse: 0.35  # 粗匹配的最小响应阈值
-    loop_match_minimum_response_fine: 0.45  # 精匹配的最小响应阈值
+    loop_match_minimum_response_coarse: 0.5  # 粗匹配的最小响应阈值
+    loop_match_minimum_response_fine: 0.6  # 精匹配的最小响应阈值
 
     # 相关性参数 - 相关性参数
-    correlation_search_space_dimension: 0.5  # 相关性搜索空间的维度（米）
-    correlation_search_space_resolution: 0.01  # 相关性搜索空间的分辨率（米）
+    correlation_search_space_dimension: 0.6  # 相关性搜索空间的维度（米）
+    correlation_search_space_resolution: 0.02  # 相关性搜索空间的分辨率（米）
     correlation_search_space_smear_deviation: 0.1  # 相关性搜索空间的扩散偏差（米）
 
     # 相关性参数 - 闭环检测参数
     loop_search_space_dimension: 8.0  # 闭环搜索空间的维度（米）
     loop_search_space_resolution: 0.05  # 闭环搜索空间的分辨率（米）
     loop_search_space_smear_deviation: 0.03  # 闭环搜索空间的扩散偏差（米）
-    loop_search_maximum_distance: 3.0  # 闭环搜索的最大距离（米）
+    loop_search_maximum_distance: 4.0  # 闭环搜索的最大距离（米）
 
     # 扫描匹配参数
-    distance_variance_penalty: 0.5  # 距离方差惩罚因子
+    distance_variance_penalty: 0.7  # 距离方差惩罚因子
     angle_variance_penalty: 1.0  # 角度方差惩罚因子
 
-    fine_search_angle_offset: 0.00349  # 精细搜索的角度偏移（弧度）
-    coarse_search_angle_offset: 0.349  # 粗略搜索的角度偏移（弧度）
-    coarse_angle_resolution: 0.0349  # 粗略搜索的角度分辨率（弧度）
+    fine_search_angle_offset: 0.01  # 精细搜索的角度偏移（弧度）
+    coarse_search_angle_offset: 0.7  # 粗略搜索的角度偏移（弧度）
+    coarse_angle_resolution: 0.1  # 粗略搜索的角度分辨率（弧度）
     minimum_angle_penalty: 0.9  # 最小角度惩罚因子
     minimum_distance_penalty: 0.5  # 最小距离惩罚因子
     use_response_expansion: true  # 启用响应扩展

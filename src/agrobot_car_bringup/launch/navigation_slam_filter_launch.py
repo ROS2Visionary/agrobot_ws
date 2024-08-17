@@ -65,7 +65,7 @@ def generate_launch_description():
         firmware_node,
         lidar_data_relay_node,
         TimerAction(
-            period=10.0,
+            period=15.0,
             actions=[nav_launch]
         )
     ])

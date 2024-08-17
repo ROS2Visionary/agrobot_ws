@@ -13,17 +13,17 @@ slam_toolbox:
     base_frame: base_footprint # 机器人基座的坐标系，通常用于表示机器人的底盘位置，是所有其他坐标系的参考点。
     scan_topic: /scan # 激光扫描话题的名称，SLAM工具箱将从此话题接收激光雷达数据以进行地图构建和定位。
     use_map_saver: true # 启用地图保存功能，地图数据会自动保存到文件中，以供后续使用或恢复。
-    mode: mapping # 设置为“mapping”模式以进行地图构建。如果设置为“localization”，则工具将进入定位模式，在已有地图上进行定位。
+    mode: localization # 设置为“mapping”模式以进行地图构建。如果设置为“localization”，则工具将进入定位模式，在已有地图上进行定位。
     # 如果希望在启动时立即从某个位置继续建图
     # 或者从充电桩位置开始建图，但这两者是互斥的。如果提供了位姿，则使用该位姿
-    # map_file_name: '/root/agrobot_ws/src/agrobot_car_mapping/maps/laboratory' # 地图文件的名称，如果提供此文件，将从该地图开始定位或继续建图。
-    # map_start_pose: [-0.277, 4.281, -1.5611132853006096] # 地图中的起始位姿，表示机器人在地图中的初始位置（x, y, theta）。
+    map_file_name: '/root/agrobot_ws/src/agrobot_car_mapping/maps/laboratory' # 地图文件的名称，如果提供此文件，将从该地图开始定位或继续建图。
+    map_start_pose: [-0.277, 4.281, -1.5611132853006096] # 地图中的起始位姿，表示机器人在地图中的初始位置（x, y, theta）。
     #map_start_at_dock: true  # 是否从充电桩位置开始建图，如果设置为true，机器人会假设自己从充电桩位置出发。
 
     debug_logging: false # 是否启用调试日志输出，设置为false以减少不必要的日志信息，适合日常运行时使用。
     throttle_scans: 1 # 控制激光扫描数据处理的频率，1表示处理所有扫描数据，增加该值可以减少处理频率，从而降低计算负担。
     transform_publish_period: 0.02 # 里程计变换的发布周期（秒），较小的值会增加TF（坐标变换）的发布频率，0表示不发布变换。
-    map_update_interval: 1.0 # 地图更新的时间间隔（秒），每5秒更新一次地图，较长的时间间隔可以减少计算开销，但可能降低实时性。
+    map_update_interval: 5.0 # 地图更新的时间间隔（秒），每5秒更新一次地图，较长的时间间隔可以减少计算开销，但可能降低实时性。
     resolution: 0.05 # 地图的分辨率（米/像素），较小的值表示更高的分辨率，可以生成更精细的地图，但计算量也更大。
     min_laser_range: 0.02 # 激光雷达的最小测量范围（米），低于此距离的测量数据将被忽略，适用于过滤掉近距离噪声。
     max_laser_range: 12.0 # 激光雷达的最大测量范围（米），超过此距离的测量数据将被忽略，避免使用无效数据。
@@ -60,7 +60,7 @@ slam_toolbox:
     angle_variance_penalty: 1.0 # 角度方差惩罚系数，用于限制角度误差的影响，确保匹配角度的精度。
     fine_search_angle_offset: 0.00174 # 细粒度搜索的角度偏移（弧度），用于提高匹配的精度。
     coarse_search_angle_offset: 0.1745 # 粗粒度搜索的角度偏移（弧度），用于快速初步匹配，但可能影响精度。
-    coarse_angle_resolution: 0.0349 # 粗粒度角度搜索的分辨率（弧度），较低的分辨率可以提高搜索速度，但可能降低精度。
+    coarse_angle_resolution: 0.01745 # 粗粒度角度搜索的分辨率（弧度），较低的分辨率可以提高搜索速度，但可能降低精度。
     minimum_angle_penalty: 0.9 # 最小角度惩罚系数，用于避免过大的角度误差，确保匹配的角度精度。
     minimum_distance_penalty: 0.5 # 最小距离惩罚系数，用于避免过大的距离误差，确保匹配的空间精度。
     use_response_expansion: true # 是否使用响应扩展，启用后可以提高匹配的鲁棒性，减少局部最优解的影响。

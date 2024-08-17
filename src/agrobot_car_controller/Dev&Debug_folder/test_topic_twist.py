@@ -13,8 +13,8 @@ class test_liser(Node):
 
 
     def accept_callback(self,msg:Twist):
-        print(msg.linear)
-        print(msg.angular)
+        self.get_logger().info(f"{msg.linear.x} - {msg.angular.z} - {np.degrees(msg.angular.z)}")
+
         
 
 def main(args=None):

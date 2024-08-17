@@ -8,8 +8,8 @@
     msop_port: 2368                                         #雷达目的端口号
     difop_port: 2369                                        #雷达源端口号
     lidar_name: N10_P                                         #雷达选择:M10 M10_P M10_PLUS M10_GPS N10 L10 N10_P
-    angle_disable_min: 120.0                                  #角度裁剪开始值
-    angle_disable_max: 240.0                                  #角度裁剪结束值
+    angle_disable_min: 90.0                                  #角度裁剪开始值
+    angle_disable_max: 270.0                                  #角度裁剪结束值
     min_range: 0.02                                          #雷达接收距离最小值
     max_range: 12.0                                        #雷达接收距离最大值
     use_gps_ts: false                                       #雷达是否使用GPS授时

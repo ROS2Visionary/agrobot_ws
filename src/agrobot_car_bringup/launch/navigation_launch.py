@@ -43,7 +43,7 @@ def generate_launch_description():
  
     
     nav_server_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([get_package_share_directory("agrobot_car_navigation"),"/launch","/nav2_launch.py"]),
+        PythonLaunchDescriptionSource([get_package_share_directory("agrobot_car_navigation"),"/launch","/nav2_with_slam_launch.py"]),
     )
 
 
@@ -51,11 +51,18 @@ def generate_launch_description():
         PythonLaunchDescriptionSource([get_package_share_directory("agrobot_car_bringup"),"/launch","/static_tf_launch.py"]),
     )
 
+    lidar_data_relay_node = Node(
+        package="agrobot_car_mapping",  # 指定节点所在的包名
+        executable="lidar_data_relay",  # 指定要执行的可执行文件
+        name="lidar_data_relay_node",  # 为节点指定一个名称
+        output="screen",  # 输出信息到屏幕
+    )
 
     return LaunchDescription([
             # 错开节点启动的时间间隔
             firmware_node,liser_node,
             static_tf_node,
+            lidar_data_relay_node,
             TimerAction(
                 period=10.0,
                 actions=[nav_server_launch]

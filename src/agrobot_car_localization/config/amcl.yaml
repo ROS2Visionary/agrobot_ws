@@ -1,0 +1,61 @@
+amcl:
+  ros__parameters:
+    use_sim_time: false  # 使用模拟时间, 主要用于仿真环境中, 使得所有组件使用相同的时间基准
+    
+    # 运动模型噪声参数
+    alpha1: 0.1  # 转动与转动之间的噪声, 控制运动模型中的转动噪声
+    alpha2: 0.1  # 直线运动与直线运动之间的噪声, 控制运动模型中的直线噪声
+    alpha3: 0.1  # 直线运动与转动之间的噪声, 控制运动模型中的交叉噪声
+    alpha4: 0.1  # 转动与直线运动之间的噪声, 控制运动模型中的交叉噪声
+    
+    base_frame_id: "base_footprint"  # 机器人的基本坐标系ID, 用于描述机器人主体的坐标系
+    
+    # 激光雷达束处理
+    beam_skip_distance: 0.5  # 距离束跳过的最小距离, 超过此距离的束会被跳过, 用于加速计算
+    beam_skip_error_threshold: 0.9  # 束跳过的错误阈值, 用于判断哪些束应该被跳过
+    beam_skip_threshold: 0.3  # 束跳过的阈值, 决定跳过束的条件
+    do_beamskip: false  # 是否启用束跳过, 控制是否跳过部分激光束以加速计算
+    
+    global_frame_id: "map"  # 全局坐标系ID, 定位在地图中的坐标系
+    
+    # 激光传感器模型参数
+    lambda_short: 0.1  # 短距离模型参数, 控制短距离障碍物的处理
+    laser_likelihood_max_dist: 2.0  # 激光扫描的最大影响距离, 超过此距离的激光束不会影响定位
+    laser_max_range: 12.0  # 激光的最大测量范围, 根据激光雷达的实际测量范围设置
+    laser_min_range: 0.02  # 激光的最小测量范围, 通常设置为默认值
+    laser_model_type: "likelihood_field"  # 激光模型类型, 用于决定激光数据的处理方式
+    max_beams: 180  # 使用的最大激光束数量, 提高激光束数量以提高定位精度
+    
+    # 粒子滤波器参数
+    max_particles: 3000  # 粒子滤波器的最大粒子数, 控制定位算法中粒子的数量上限
+    min_particles: 1000  # 粒子滤波器的最小粒子数, 控制定位算法中粒子的数量下限
+    
+    odom_frame_id: "odom"  # 里程计坐标系ID, 用于表示里程计数据的坐标系
+    pf_err: 0.05  # 粒子滤波器误差, 控制粒子滤波器的误差范围
+    pf_z: 0.99  # 粒子滤波器Z值, 控制粒子滤波器的置信度
+    
+    # 恢复参数
+    recovery_alpha_fast: 0.0  # 快速恢复参数, 控制定位失败时的快速恢复
+    recovery_alpha_slow: 0.0  # 慢速恢复参数, 控制定位失败时的慢速恢复
+    
+    resample_interval: 1  # 重采样间隔, 控制粒子滤波器的重采样频率
+    robot_model_type: "nav2_amcl::DifferentialMotionModel"  # 机器人模型类型, 用于描述机器人的运动模型
+    
+    save_pose_rate: 0.5  # 保存姿态的频率, 控制保存机器人位姿的频率
+    
+    # 激光模型权重参数
+    sigma_hit: 0.2  # 命中模型参数, 控制激光模型中的命中概率
+    z_hit: 0.5  # 命中模型权重, 控制命中模型的权重比例
+    z_max: 0.05  # 最大模型权重, 控制最大距离模型的权重比例
+    z_rand: 0.5  # 随机模型权重, 控制随机模型的权重比例
+    z_short: 0.05  # 短距离模型权重, 控制短距离模型的权重比例
+    
+    tf_broadcast: true  # 是否广播tf变换, 控制是否发布tf变换信息
+    transform_tolerance: 0.5  # 变换的容差, 减少容差范围以减少延迟
+    
+    # 更新参数
+    update_min_a: 0.01  # 最小更新角度, 控制在旋转多少角度后更新滤波器
+    update_min_d: 0.01  # 最小更新距离, 控制在移动多少距离后更新滤波器
+    
+    # 激光扫描话题
+    scan_topic: "/scan"  # 激光扫描话题名, 用于指定激光数据的ROS话题

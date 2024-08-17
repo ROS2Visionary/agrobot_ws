@@ -12,7 +12,9 @@ import binascii
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
-
+from geometry_msgs.msg import TransformStamped
+import tf2_ros
+import random
 
 class CarControlAndFeedback(Node):
     
@@ -26,8 +28,12 @@ class CarControlAndFeedback(Node):
         self.sub = self.create_subscription(Twist, "/cmd_vel", self.control_motor, 10)
 
         self.amcl_pose_group = MutuallyExclusiveCallbackGroup()
-        self.amcl_pose_sub = self.create_subscription(PoseWithCovarianceStamped, '/amcl_pose', self.amcl_pose_callback, 10,callback_group=self.amcl_pose_group)
+        # self.amcl_pose_sub = self.create_subscription(PoseWithCovarianceStamped, '/amcl_pose', self.amcl_pose_callback, 10,callback_group=self.amcl_pose_group)
+        self.pose_sub = self.create_subscription(PoseWithCovarianceStamped,"/pose",self.pose_callback,10)
 
+
+         # 创建TF广播器
+        self.tf_broadcaster = tf2_ros.TransformBroadcaster(self)
         
         # 创建里程计数据发布者
         self.pub_odom = self.create_publisher(Odometry, '/odom', 10)
@@ -44,6 +50,7 @@ class CarControlAndFeedback(Node):
         self.rate = self.create_rate(2)
         
         self.is_turn = False 
+        self.is_init_pose = False
         self.output_tags = 0
         self.temp_arr = []
 
@@ -54,22 +61,23 @@ class CarControlAndFeedback(Node):
         self.orientation_z = msg.pose.pose.orientation.z
         self.orientation_w = msg.pose.pose.orientation.w
         self.theta = 0.0
+
         
     def control_motor(self, msg: Twist):
         # 控制电机的方法，接收Twist消息类型作为参数
                 
-        x_speed = msg.linear.x
+        x_speed = msg.linear.x * 0.5
         # 没有用到y方向的速度，可以直接赋值为0
         y_speed = 0.0 
-        z_angular_vel = msg.angular.z
+        z_angular_vel = msg.angular.z * 0.1
 
         if z_angular_vel != 0.0:
             self.is_turn = True
         else:
             self.is_turn = False
-
+        self.get_logger().info(f"{msg.linear} - {msg.angular}")
         # 该电机实际接收的不是角速度，而是Z方向的线速度(具体可以看文档)，所以要将角速度按比例转换一下(X1.4)
-        straight_cmd = self.pack_motor_cmd(x_speed,y_speed, z_angular_vel * 1.4) 
+        straight_cmd = self.pack_motor_cmd(x_speed,y_speed, 0.0) 
         self.ser.write(straight_cmd)
         
 
@@ -112,13 +120,12 @@ class CarControlAndFeedback(Node):
     def release_odometer(self,v, omega):
         # 算线速度（v）和角速度（omega）
         now = self.get_clock().now()
-    
+
         # 更新车辆的位置和角度
         dt = (now.nanoseconds - self.last_time.nanoseconds) / 1e9
         self.position_x += v * dt * math.cos(self.theta)
         self.position_y += v * dt * math.sin(self.theta)
         self.theta += omega * dt
-        
 
         # 创建Odometry消息对象
         odom = Odometry()
@@ -153,8 +160,35 @@ class CarControlAndFeedback(Node):
         #     self.output_tags = 0
         #     if v != 0.0 or omega != 0.0:
         #         self.get_logger().info(f"Z轴转角: {np.degrees(self.theta)} - 位置:{odom.pose.pose.position}")
-        self.pub_odom.publish(odom)
+        # self.pub_odom.publish(odom)
 
+        # 创建TransformStamped消息
+        t = TransformStamped()
+        # 填充时间戳
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = 'odom'
+        t.child_frame_id = 'base_footprint'  # base_link或者base_footprint
+        # 填充平移
+        t.transform.translation.x = random.choice([0.0005, 0.00101,0.00151])
+        # t.transform.translation.x = odom.pose.pose.position.x
+        # t.transform.translation.y = odom.pose.pose.position.y
+        # t.transform.translation.z = odom.pose.pose.position.z
+        # 填充旋转（四元数）
+        # t.transform.rotation = odom.pose.pose.orientation
+        # 发布TF
+        self.tf_broadcaster.sendTransform(t)
+
+    def pose_callback(self,msg:PoseWithCovarianceStamped):
+
+        if self.is_init_pose:
+            return
+        self.is_init_pose = True
+        self.position_x = msg.pose.pose.position.x
+        self.position_y = msg.pose.pose.position.y
+        self.orientation_z = msg.pose.pose.orientation.z
+        self.orientation_w = msg.pose.pose.orientation.w
+        self.theta = 0.0
+        self.get_logger().info("收到位置信息")
 
     def stop(self):
         # 停止电机运行，将电机速度设置为0
@@ -254,8 +288,8 @@ def main(args=None):
     # test_thread.start()
 
     # 启动子线程接收机器人发出的数据
-    # accept_agrobot_data_thread = threading.Thread(target=node.read_data)
-    # accept_agrobot_data_thread.start()
+    accept_agrobot_data_thread = threading.Thread(target=node.read_data)
+    accept_agrobot_data_thread.start()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

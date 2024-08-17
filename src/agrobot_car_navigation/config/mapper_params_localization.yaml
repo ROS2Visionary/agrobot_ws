@@ -1,0 +1,69 @@
+slam_toolbox:
+  ros__parameters:
+    solver_plugin: solver_plugins::CeresSolver  # 使用Ceres Solver作为优化算法插件
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY  # 设置Ceres Solver的线性求解器类型为稀疏矩阵求解器
+    ceres_preconditioner: SCHUR_JACOBI  # 设置预处理器类型为Schur Jacobi，用于加速求解过程
+    ceres_trust_strategy: LEVENBERG_MARQUARDT  # 使用Levenberg-Marquardt算法作为信赖域策略
+    ceres_dogleg_type: TRADITIONAL_DOGLEG  # 选择传统Dogleg方法作为求解策略
+    ceres_loss_function: None  # 不使用损失函数
+
+    # ROS Parameters
+    odom_frame: odom  # 设置里程计坐标系的名称
+    map_frame: map  # 设置地图坐标系的名称
+    base_frame: base_footprint  # 设置机器人基座的坐标系名称
+    scan_topic: /scan  # 设置激光雷达数据的订阅话题名称
+    mode: mapping  # 设定工作模式为建图模式，可以设置为localization模式来进行定位
+
+    # 如果你希望在启动时基于现有地图进行定位或者继续建图，可以设置地图文件
+    map_file_name: '/root/agrobot_ws/src/agrobot_car_mapping/maps/laboratory'  # 地图文件的路径，如果提供此文件，将从该地图开始定位或继续建图
+    map_start_pose: [-0.277,4.281,-1.5611132853006096]  # 地图中的起始位姿，表示机器人在地图中的初始位置（x, y, theta）
+
+    debug_logging: false  # 是否启用调试日志记录
+    throttle_scans: 1  # 设置对扫描数据的降采样率，1表示不过滤
+    transform_publish_period: 0.02  # 设置变换（Transform）的发布周期，单位为秒。设置为0表示不发布里程计信息
+    map_update_interval: 0.5  # 设置地图更新的时间间隔，单位为秒
+    resolution: 0.05  # 设置地图的分辨率，单位为米
+    min_laser_range: 0.02  # 设置激光雷达的最小测距范围，单位为米
+    max_laser_range: 12.0  # 设置激光雷达的最大测距范围，单位为米
+    minimum_time_interval: 0.1  # 设置两次数据处理之间的最小时间间隔，单位为秒
+    transform_timeout: 0.2  # 设置变换的超时时间，单位为秒
+    tf_buffer_duration: 30.0  # 设置tf变换的缓存时间，单位为秒
+    stack_size_to_use: 40000000  # 设置程序需要使用的栈大小，以处理大地图的数据序列化
+
+    # General Parameters - 通用参数
+    use_scan_matching: true  # 是否启用扫描匹配功能
+    use_scan_barycenter: true  # 是否使用扫描重心作为匹配中心
+    minimum_travel_distance: 0.001  # 设置移动最小距离阈值（单位：米），超过此距离才会触发地图更新
+    minimum_travel_heading: 0.001  # 设置旋转最小角度阈值（单位：弧度），超过此角度才会触发地图更新
+    scan_buffer_size: 3  # 设置扫描缓冲区的大小
+    scan_buffer_maximum_scan_distance: 10.0  # 设置扫描缓冲区中允许的最大扫描距离
+    link_match_minimum_response_fine: 0.1  # 设置精细匹配的最小响应值
+    link_scan_maximum_distance: 1.5  # 设置连接扫描的最大距离
+
+    do_loop_closing: true  # 是否启用闭环检测
+    loop_match_minimum_chain_size: 3  # 设置闭环匹配的最小链大小
+    loop_match_maximum_variance_coarse: 3.0  # 设置闭环匹配粗略阶段的最大方差
+    loop_match_minimum_response_coarse: 0.35  # 设置闭环匹配粗略阶段的最小响应值
+    loop_match_minimum_response_fine: 0.45  # 设置闭环匹配精细阶段的最小响应值
+
+    # Correlation Parameters - 相关性参数
+    correlation_search_space_dimension: 0.5  # 设置相关性搜索空间的维度，单位为米
+    correlation_search_space_resolution: 0.01  # 设置相关性搜索空间的分辨率
+    correlation_search_space_smear_deviation: 0.1  # 设置相关性搜索空间的偏差
+
+    # Correlation Parameters - Loop Closure Parameters - 闭环检测的相关性参数
+    loop_search_space_dimension: 8.0  # 设置闭环检测的搜索空间维度，单位为米
+    loop_search_space_resolution: 0.05  # 设置闭环检测的搜索空间分辨率
+    loop_search_space_smear_deviation: 0.03  # 设置闭环检测的搜索空间偏差
+    loop_search_maximum_distance: 3.0  # 设置闭环检测的最大搜索距离，单位为米
+
+    # Scan Matcher Parameters - 扫描匹配器参数
+    distance_variance_penalty: 0.5  # 设置距离方差惩罚系数
+    angle_variance_penalty: 1.0  # 设置角度方差惩罚系数
+
+    fine_search_angle_offset: 0.00349  # 设置精细搜索的角度偏移，单位为弧度
+    coarse_search_angle_offset: 0.349  # 设置粗略搜索的角度偏移，单位为弧度
+    coarse_angle_resolution: 0.0349  # 设置粗略搜索的角度分辨率，单位为弧度
+    minimum_angle_penalty: 0.9  # 设置最小角度惩罚系数
+    minimum_distance_penalty: 0.5  # 设置最小距离惩罚系数
+    use_response_expansion: true  # 是否启用响应扩展

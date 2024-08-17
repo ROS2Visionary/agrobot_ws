@@ -11,10 +11,17 @@ class lidar_data_relay(Node):
         self.liser_sub = self.create_subscription(LaserScan,"/raw_scan",self.accept_liser,10)
         self.liser_pub = self.create_publisher(LaserScan,"/scan",10)
 
+        self.index = 0
 
     def accept_liser(self,msg:LaserScan):
+
+        if self.index < 2:
+            self.index += 1
+            return
         
-        # msg.header.stamp = self.get_clock().now().to_msg()
+        self.index = 0
+
+        msg.header.stamp = self.get_clock().now().to_msg()
         # msg.header.frame_id = "liser_link"
 
         # count = (msg.angle_max - msg.angle_min) / msg.angle_increment

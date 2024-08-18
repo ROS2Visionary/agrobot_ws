@@ -63,7 +63,7 @@ ekf_filter_node:
         # 滤波器接受任意数量的每个输入消息类型（nav_msgs/Odometry, geometry_msgs/PoseWithCovarianceStamped,
         # geometry_msgs/TwistWithCovarianceStamped, sensor_msgs/Imu）。要添加输入，只需将序列中的下一个数字附加到其 "base" 名称，
         # 例如 odom0, odom1, twist0, twist1, imu0, imu1, imu2 等。这些参数显然没有默认值，必须指定。
-        odom0: odom
+        odom0: /odom
 
         # 每个传感器读取都会更新滤波器的某些或所有状态。这些选项可以让你更好地控制哪些测量值会输入到滤波器中。
         # 例如，如果你有一个里程计消息作为输入，但只想使用它的Z位置值，则将整个向量设置为false，除了第三个条目。
@@ -107,7 +107,7 @@ ekf_filter_node:
         odom0_pose_rejection_threshold: 5.0
         odom0_twist_rejection_threshold: 1.0
 
-        imu0: imu
+        imu0: /imu
         # 值的顺序为x、y、z、roll、pitch、yaw、vx、vy、vz、vroll、vpitch、vyaw、ax、ay、az。
         imu0_config: [false, false, false,  # 不融合位置变量
                       false,  false,  true,  # 仅融合yaw旋转角度

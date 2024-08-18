@@ -60,6 +60,7 @@ ros2 launch agrobot_car_bringup navigation_slam_filter_launch.py
 # 融合
 colcon build  --packages-select agrobot_car_localization
 source install/setup.sh
+rm -f /root/agrobot_ws/src/agrobot_car_localization/debug.txt
 clear
 ros2 launch agrobot_car_bringup fusion_launch.py
 

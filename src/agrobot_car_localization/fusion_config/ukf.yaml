@@ -23,10 +23,10 @@ ukf_filter_node:
 
         # 调试设置。不适合胆小者。将大量信息输出到由debug_out_file指定的文件中。我希望你喜欢矩阵！请注意，将此设置为true将严重影响节点的性能。
         # 如果未指定，默认为false。
-        debug: false
+        debug: true
 
         # 如果未指定，默认为"robot_localization_debug.txt"。请指定完整路径。
-        debug_out_file: /path/to/debug/file.txt
+        debug_out_file: /root/agrobot_ws/src/agrobot_car_localization/debug.txt
 
         # 是否允许旧的测量导致更新状态的重新发布。
         permit_corrected_publication: false
@@ -123,7 +123,7 @@ ukf_filter_node:
         control_timeout: 0.2
 
         # 哪些速度被控制。顺序为vx、vy、vz、vroll、vpitch、vyaw。
-        control_config: [false, false, false, false, false, false]
+        control_config: [true, false, false, false, false, true]
 
         # 限制加速度项的最大值。应与机器人的运动学匹配。
         acceleration_limits: [1.3, 0.0, 0.0, 0.0, 0.0, 3.4]

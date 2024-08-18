@@ -11,9 +11,9 @@ class kalman_filter(Node):
         super().__init__("kalman_filter")
 
         # 创建订阅器和发布器
-        self.odom_subscriber = self.create_subscription(Odometry, "odom_noisy", self.odomCallback, 10)
-        self.imu_subscriber = self.create_subscription(Imu, "imu", self.imuCallback, 10)
-        self.odom_publisher = self.create_publisher(Odometry, "odom_kalman", 10)
+        self.odom_subscriber = self.create_subscription(Odometry, "/odom_noisy", self.odomCallback, 10)
+        self.imu_subscriber = self.create_subscription(Imu, "/imu_noisy", self.imuCallback, 10)
+        self.odom_publisher = self.create_publisher(Odometry, "/odom", 10)
         
         # 初始化 Kalman 滤波器参数
         self.mean = 0.0  # 初始状态的均值

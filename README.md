@@ -57,6 +57,12 @@ source install/setup.sh
 clear
 ros2 launch agrobot_car_bringup navigation_slam_filter_launch.py
 
+# 融合
+colcon build  --packages-select agrobot_car_localization
+source install/setup.sh
+clear
+ros2 launch agrobot_car_bringup fusion_launch.py
+
 
 # 清除
 rm -rf build install log

@@ -1,9 +1,8 @@
-### ukf config file ###
 ukf_filter_node:
     ros__parameters:
         # 滤波器输出位置估计的频率，单位为赫兹。注意，滤波器在接收到至少一个输入消息之前不会开始计算。
         # 之后它将以此处指定的频率连续运行，无论是否接收到更多的测量值。如果未指定，默认为30。
-        frequency: 30.0
+        frequency: 20.0
 
         # 传感器超时的时间周期（以秒为单位）。在这种情况下，我们将对EKF进行预测周期而不进行修正。
         # 这个参数可以被视为滤波器生成新输出的最小频率。如果未指定，默认为1 / frequency。
@@ -11,7 +10,7 @@ ukf_filter_node:
 
         # ekf_localization_node和ukf_localization_node都使用3D全向运动模型。如果此参数设置为true，则状态估计中将不会使用3D信息。
         # 如果您在平面环境中操作并希望忽略可能被IMU等检测到的地面平面中微小的变化，可以使用此选项。如果未指定，默认为false。
-        two_d_mode: false
+        two_d_mode: true
 
         # 使用此参数为ekf_localization_node生成的变换提供一个偏移量。此选项可用于为某些其他软件包的交互提供未来日期的变换。如果未指定，默认为0.0。
         transform_time_offset: 0.0
@@ -50,13 +49,13 @@ ukf_filter_node:
         # 3. 如果您正在融合容易发生离散跳跃的全局绝对位置信息（例如，GPS或来自地标观测的位置信息更新），那么：
         #   3a. 将"world_frame"设置为map_frame值
         #   3b. 确保有其他东西生成odom->base_link变换。请注意，这甚至可以是来自robot_localization的另一个状态估计节点！但是，该实例不应融合全局数据。
-        map_frame: map              # 如果未指定，默认为"map"
-        odom_frame: odom            # 如果未指定，默认为"odom"
-        base_link_frame: base_link  # 如果未指定，默认为"base_link"
-        world_frame: odom           # 如果未指定，默认为odom_frame的值
+        map_frame: map                      # 如果未指定，默认为"map"
+        odom_frame: odom                    # 如果未指定，默认为"odom"
+        base_link_frame: base_footprint     # 如果未指定，默认为"base_link"
+        world_frame: odom                   # 如果未指定，默认为odom_frame的值
 
         # 滤波器接受任意数量的来自每个输入消息类型（nav_msgs/Odometry、geometry_msgs/PoseWithCovarianceStamped、geometry_msgs/TwistWithCovarianceStamped、sensor_msgs/Imu）的输入。要添加输入，只需在其"基本"名称后附加序列中的下一个数字，例如odom0、odom1、twist0、twist1、imu0、imu1、imu2等。值应为话题名称。这些参数显然没有默认值，必须指定。
-        odom0: example/odom
+        odom0: /odom
 
         # 每个传感器读数更新滤波器的部分或全部状态。这些选项使您能够更好地控制将哪些值从每次测量中馈送到滤波器。
         # 例如，如果您有一个里程计消息作为输入，但只想使用其Z位置值，则将整个向量设置为false，除了第三个条目。
@@ -66,12 +65,12 @@ ukf_filter_node:
         # 如果未指定，每个向量默认值均为false，从而有效地使此参数成为每个传感器所必需的。
         odom0_config: [true,  true,  false,
                       false, false, false,
-                      false, false, false,
+                      true,  false, false,
                       false, false, true,
                       false, false, false]
 
         # 如果您有高频数据或运行时使用低频参数值，您可能希望增加订阅队列的大小，以便融合更多的测量值。
-        odom0_queue_size: 2
+        odom0_queue_size: 100
 
         # [高级设置]当使用两个传感器测量一个位置变量时，可能会出现两者都低估其协方差的情况。这可能导致滤波器在接收到每次测量时快速跳跃。
         # 在这些情况下，通常有意义的是(a)纠正测量协方差，或(b)如果其中一个传感器也测量速度，则让一个传感器测量位置，另一个传感器测量速度。
@@ -93,39 +92,8 @@ ukf_filter_node:
         odom0_pose_rejection_threshold: 5.0
         odom0_twist_rejection_threshold: 1.0
 
-        # 进一步的输入参数示例
-        odom1: example/another_odom
-        odom1_config: [false, false, true,
-                      false, false, false,
-                      false, false, false,
-                      false, false, true,
-                      false, false, false]
-        odom1_differential: false
-        odom1_relative: true
-        odom1_queue_size: 2
-        odom1_pose_rejection_threshold: 2.0
-        odom1_twist_rejection_threshold: 0.2
-        pose0: example/pose
-        pose0_config: [true,  true,  false,
-                      false, false, false,
-                      false, false, false,
-                      false, false, false,
-                      false, false, false]
-        pose0_differential: true
-        pose0_relative: false
-        pose0_queue_size: 5
-        pose0_rejection_threshold: 2.0  # 注意参数名称的区别
-
-        twist0: example/twist
-        twist0_config: [false, false, false,
-                        false, false, false,
-                        true,  true,  true,
-                        false, false, false,
-                        false, false, false]
-        twist0_queue_size: 3
-        twist0_rejection_threshold: 2.0
-
-        imu0: example/imu
+        imu0: /imu
+        # 值的顺序为x、y、z、roll、pitch、yaw、vx、vy、vz、vroll、vpitch、vyaw、ax、ay、az。
         imu0_config: [false, false, false,
                       true,  true,  true,
                       false, false, false,
@@ -134,11 +102,9 @@ ukf_filter_node:
         imu0_differential: false
         imu0_relative: true
         imu0_queue_size: 5
-        imu0_pose_rejection_threshold: 0.8                 # 注意参数名称的区别
-        imu0_twist_rejection_threshold: 0.8                #
-        imu0_linear_acceleration_rejection_threshold: 0.8  #
-
-        # [高级设置]某些IMU会自动移除重力加速度，而其他IMU则不会。如果您的IMU没有移除，请将此设置为true，并*确保*您的数据符合REP-103，特别是数据处于ENU框架中。
+        imu0_pose_rejection_threshold: 0.8
+        imu0_twist_rejection_threshold: 0.8
+        imu0_linear_acceleration_rejection_threshold: 0.8
         imu0_remove_gravitational_acceleration: true
 
         # [高级设置]EKF和UKF模型遵循标准的预测/校正周期。在预测过程中，如果没有加速度参考，则t+1时刻的速度将简单地预测为与t时刻的速度相同。
@@ -157,7 +123,7 @@ ukf_filter_node:
         control_timeout: 0.2
 
         # 哪些速度被控制。顺序为vx、vy、vz、vroll、vpitch、vyaw。
-        control_config: [true, false, false, false, false, true]
+        control_config: [false, false, false, false, false, false]
 
         # 限制加速度项的最大值。应与机器人的运动学匹配。
         acceleration_limits: [1.3, 0.0, 0.0, 0.0, 0.0, 3.4]
@@ -176,21 +142,21 @@ ukf_filter_node:
         # 但是，如果用户发现某个变量收敛缓慢，一种方法是增加相关变量的process_noise_covariance对角线值，这将导致滤波器的预测误差增大，从而导致滤波器在校正期间更加信任传入的测量值。
         # 值的顺序为x、y、z、roll、pitch、yaw、vx、vy、vz、vroll、vpitch、vyaw、ax、ay、az。如果未指定，默认为以下矩阵。
         # 注意：协方差矩阵的指定可能很繁琐，因此此包中的所有矩阵参数支持完全指定或仅指定对角线值。
-        process_noise_covariance: [0.05, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.05, 0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.06, 0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.03, 0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.0,    0.03, 0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.06, 0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.025, 0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.025, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.04, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.01, 0.0,    0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.01, 0.0,    0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.02, 0.0,    0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.01, 0.0,    0.0,
-                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.01, 0.0,
-                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.015]
+        process_noise_covariance: [0.1, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.1, 0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.1, 0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.1, 0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.1, 0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.1, 0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.1, 0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.1, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.1, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.1, 0.0,    0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.1, 0.0,    0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.1, 0.0,    0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.1, 0.0,    0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.1, 0.0,
+                                  0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.1]
 
         # [高级设置]这代表了状态估计误差协方差矩阵的初始值。将对角线值（方差）设置为较大值将导致相关变量的初始测量值快速收敛。
         # 用户应注意，不要对不会直接测量的变量使用较大的值。值的顺序为x、y、z、roll、pitch、yaw、vx、vy、vz、vroll、vpitch、vyaw、ax、ay、az。

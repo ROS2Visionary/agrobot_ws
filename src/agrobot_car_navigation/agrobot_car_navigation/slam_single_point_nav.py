@@ -70,7 +70,7 @@ class multi_point_navigator(BasicNavigator):
         goal_pose_1.pose.orientation.w = 0.9172711936406892
 
         goal_pose_2 = PoseStamped()
-        goal_pose_2.header.frame_id = 'map'
+        goal_pose_2.header.frame_id = 'map' 
         goal_pose_2.pose.position.x = 2.10793399810791
         goal_pose_2.pose.position.y = -0.7233690619468689
         goal_pose_2.pose.orientation.z = -0.04502235143141649

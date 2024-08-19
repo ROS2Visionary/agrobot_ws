@@ -71,4 +71,10 @@ rm -rf build install log
 colcon build 
 source install/setup.sh
 clear
-ros2 launch agrobot_car_localization slam_localization_launch.py 
+ros2 launch agrobot_car_bringup show_map_launch.py 
+
+
+colcon build 
+source install/setup.sh
+clear
+ros2 launch agrobot_car_navigation debug_nav2_launch.py 

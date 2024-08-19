@@ -1,6 +1,6 @@
 amcl:
   ros__parameters:
-    use_sim_time: True  # 是否使用仿真时间，用于在仿真环境下运行
+    use_sim_time: false  # 是否使用仿真时间，用于在仿真环境下运行
     alpha1: 0.2  # 运动模型的噪声参数，控制角速度对位移的影响，值越大表示噪声越大
     alpha2: 0.2  # 运动模型的噪声参数，控制直线速度对位移的影响，值越大表示噪声越大
     alpha3: 0.2  # 运动模型的噪声参数，控制角速度对角速度的影响，值越大表示噪声越大
@@ -41,10 +41,10 @@ amcl:
 
 controller_server:
   ros__parameters:
-    use_sim_time: True  # 是否使用仿真时间，用于在仿真环境下运行
-    controller_frequency: 5.0  # 降低控制器运行频率为10Hz，减轻计算负担
+    use_sim_time: false  # 是否使用仿真时间，用于在仿真环境下运行
+    controller_frequency: 10.0  # 降低控制器运行频率为10Hz，减轻计算负担
     min_x_velocity_threshold: 0.001  # 最小X方向速度阈值（米/秒），低于此值视为停止
-    min_y_velocity_threshold: 0.0  # 最小Y方向速度阈值（米/秒），低于此值视为停止
+    min_y_velocity_threshold: 0.01  # 最小Y方向速度阈值（米/秒），低于此值视为停止
     min_theta_velocity_threshold: 0.001  # 最小角速度阈值（弧度/秒），低于此值视为停止
     failure_tolerance: 0.3  # 控制器允许的失败比例，用于处理控制失败
     progress_checker_plugin: "progress_checker"  # 进度检查插件，用于检测机器人是否在前进
@@ -54,15 +54,15 @@ controller_server:
     # 进度检查器参数
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"  # 简单进度检查器插件，用于检测机器人是否在前进
-      required_movement_radius: 0.2  # 减少最小半径，以适应较小的移动量
+      required_movement_radius: 0.02  # 减少最小半径，以适应较小的移动量
       movement_time_allowance: 20.0  # 增加允许移动时间，避免频繁的重启
 
     # 目标检查器参数
     general_goal_checker:
       stateful: True  # 是否有状态，用于保持目标检查的状态
       plugin: "nav2_controller::SimpleGoalChecker"  # 简单目标检查器插件，用于检测机器人是否到达目标
-      xy_goal_tolerance: 0.25  # XY方向目标容忍度（米），机器人到达目标的距离容忍度
-      yaw_goal_tolerance: 0.25  # 偏航角目标容忍度（弧度），机器人到达目标的角度容忍度
+      xy_goal_tolerance: 0.05  # XY方向目标容忍度（米），机器人到达目标的距离容忍度
+      yaw_goal_tolerance: 0.1  # 偏航角目标容忍度（弧度），机器人到达目标的角度容忍度
 
     # DWB控制器参数
     FollowPath:
@@ -111,8 +111,8 @@ local_costmap:
       update_frequency: 5.0  # 更新频率（Hz），控制代价地图的更新频率
       publish_frequency: 2.0  # 发布频率（Hz），控制代价地图的发布频率
       global_frame: odom  # 全局坐标系，用于表示机器人的运动坐标系
-      robot_base_frame: base_link  # 机器人基础坐标系，用于表示机器人的物理框架
-      use_sim_time: True  # 是否使用仿真时间，用于在仿真环境下运行
+      robot_base_frame: base_footprint  # 机器人基础坐标系，用于表示机器人的物理框架
+      use_sim_time: false  # 是否使用仿真时间，用于在仿真环境下运行
       rolling_window: true  # 是否使用滚动窗口，用于动态更新代价地图
       width: 3  # 代价地图宽度（米），控制地图的范围
       height: 3  # 代价地图高度（米），控制地图的范围
@@ -156,11 +156,11 @@ local_costmap:
 global_costmap:
   global_costmap:
     ros__parameters:
-      update_frequency: 0.5  # 降低更新频率为0.5Hz，减少计算负担
-      publish_frequency: 0.5  # 降低发布频率为0.5Hz，减少计算负担
+      update_frequency: 3.0  # 降低更新频率为0.5Hz，减少计算负担
+      publish_frequency: 2.0  # 降低发布频率为0.5Hz，减少计算负担
       global_frame: map  # 全局坐标系，用于表示地图的坐标系
-      robot_base_frame: base_link  # 机器人基础坐标系，用于表示机器人的物理框架
-      use_sim_time: True  # 是否使用仿真时间，用于在仿真环境下运行
+      robot_base_frame: base_footprint  # 机器人基础坐标系，用于表示机器人的物理框架
+      use_sim_time: false  # 是否使用仿真时间，用于在仿真环境下运行
       robot_radius: 0.22  # 机器人半径（米），用于设置机器人的大小
       resolution: 0.1  # 降低代价地图分辨率为0.1米/像素，减少计算负担
       track_unknown_space: true  # 是否跟踪未知空间，用于处理未知区域
@@ -195,7 +195,7 @@ global_costmap:
 
 velocity_smoother:
   ros__parameters:
-    use_sim_time: True  # 是否使用仿真时间，用于在仿真环境下运行
+    use_sim_time: false  # 是否使用仿真时间，用于在仿真环境下运行
     smoothing_frequency: 10.0  # 降低平滑频率为10Hz，减少计算负担
     scale_velocities: False  # 是否缩放速度，用于速度控制
     feedback: "OPEN_LOOP"  # 反馈类型，用于速度控制

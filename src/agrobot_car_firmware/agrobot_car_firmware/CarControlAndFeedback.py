@@ -29,7 +29,7 @@ class CarControlAndFeedback(Node):
 
         self.amcl_pose_group = MutuallyExclusiveCallbackGroup()
         # self.amcl_pose_sub = self.create_subscription(PoseWithCovarianceStamped, '/amcl_pose', self.amcl_pose_callback, 10,callback_group=self.amcl_pose_group)
-        self.pose_sub = self.create_subscription(PoseWithCovarianceStamped,"/pose",self.pose_callback,10)
+        # self.pose_sub = self.create_subscription(PoseWithCovarianceStamped,"/pose",self.pose_callback,10)
 
 
          # 创建TF广播器
@@ -49,7 +49,6 @@ class CarControlAndFeedback(Node):
 
         self.rate = self.create_rate(2)
         
-        self.is_turn = False 
         self.is_init_pose = False
         self.output_tags = 0
         self.temp_arr = []
@@ -66,18 +65,14 @@ class CarControlAndFeedback(Node):
     def control_motor(self, msg: Twist):
         # 控制电机的方法，接收Twist消息类型作为参数
                 
-        x_speed = msg.linear.x * 0.5
+        x_speed = msg.linear.x
         # 没有用到y方向的速度，可以直接赋值为0
         y_speed = 0.0 
-        z_angular_vel = msg.angular.z * 0.1
+        z_angular_vel = msg.angular.z
 
-        if z_angular_vel != 0.0:
-            self.is_turn = True
-        else:
-            self.is_turn = False
         self.get_logger().info(f"{msg.linear} - {msg.angular}")
         # 该电机实际接收的不是角速度，而是Z方向的线速度(具体可以看文档)，所以要将角速度按比例转换一下(X1.4)
-        straight_cmd = self.pack_motor_cmd(x_speed,y_speed, 0.0) 
+        straight_cmd = self.pack_motor_cmd(x_speed,y_speed, z_angular_vel) 
         self.ser.write(straight_cmd)
         
 
@@ -106,14 +101,6 @@ class CarControlAndFeedback(Node):
                     self.ser.read(3) # 忽视电压和校验位
 
                     if binascii.b2a_hex(self.ser.read(1)) == b"7d": # 通过帧尾来判断数据是否有误
-                        # 调试输出
-                        # if z_linear > 0.0:
-                        #     self.temp_arr.append(z_angular_vel / z_linear)
-                        #     mean = np.sum(self.temp_arr) / len(self.temp_arr)
-                        #     print(f"{x_linear} - {z_linear} - {mean}")
-
-                        # if not self.is_turn:
-                        #     z_angular_vel = 0.0
                         self.release_odometer(x_linear,z_angular_vel)
 
             
@@ -142,8 +129,8 @@ class CarControlAndFeedback(Node):
         # 设置方向信息
         odom.pose.pose.orientation.x = 0.0
         odom.pose.pose.orientation.y = 0.0
-        odom.pose.pose.orientation.z = self.orientation_z + math.sin(self.theta / 2)
-        odom.pose.pose.orientation.w = self.orientation_w + math.cos(self.theta / 2)
+        odom.pose.pose.orientation.z = math.sin(self.theta / 2)
+        odom.pose.pose.orientation.w = math.cos(self.theta / 2)
 
         # 设置速度信息
         odom.twist.twist.linear.x = v
@@ -160,7 +147,7 @@ class CarControlAndFeedback(Node):
         #     self.output_tags = 0
         #     if v != 0.0 or omega != 0.0:
         #         self.get_logger().info(f"Z轴转角: {np.degrees(self.theta)} - 位置:{odom.pose.pose.position}")
-        # self.pub_odom.publish(odom)
+        self.pub_odom.publish(odom)
 
         # 创建TransformStamped消息
         t = TransformStamped()
@@ -169,12 +156,11 @@ class CarControlAndFeedback(Node):
         t.header.frame_id = 'odom'
         t.child_frame_id = 'base_footprint'  # base_link或者base_footprint
         # 填充平移
-        t.transform.translation.x = random.choice([0.0005, 0.00101,0.00151])
-        # t.transform.translation.x = odom.pose.pose.position.x
-        # t.transform.translation.y = odom.pose.pose.position.y
-        # t.transform.translation.z = odom.pose.pose.position.z
+        t.transform.translation.x = odom.pose.pose.position.x
+        t.transform.translation.y = odom.pose.pose.position.y
+        t.transform.translation.z = odom.pose.pose.position.z
         # 填充旋转（四元数）
-        # t.transform.rotation = odom.pose.pose.orientation
+        t.transform.rotation = odom.pose.pose.orientation
         # 发布TF
         self.tf_broadcaster.sendTransform(t)
 

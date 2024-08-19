@@ -7,7 +7,8 @@ import math
 import tf_transformations
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
-
+import threading
+import random
 
 class debug_nav_routes(Node):
 
@@ -37,8 +38,6 @@ class debug_nav_routes(Node):
         self.pose_pub = self.create_publisher(PoseWithCovarianceStamped, '/initialpose', 10)
         self.initial_pose = PoseWithCovarianceStamped()
 
-        self.group1 = MutuallyExclusiveCallbackGroup()
-        self.timer = self.create_timer(1.0,self.publish_initial_pose,callback_group=self.group1)
 
     def twist_callback(self, msg):
         # 获取当前时间
@@ -47,10 +46,11 @@ class debug_nav_routes(Node):
         # 计算时间差
         dt = (current_time - self.last_time).nanoseconds * 1e-9
 
-        # 从Twist消息中提取线速度和角速度
-        vx = msg.linear.x
-        vy = msg.linear.y  # 对于差动驱动机器人，vy通常为0
-        vth = msg.angular.z
+         # 从Twist消息中提取线速度和角速度，并添加噪声
+        noise_level = 0.01  # 噪声级别，可以根据需要调整
+        vx = msg.linear.x + random.uniform(-noise_level, noise_level)
+        vy = msg.linear.y + random.uniform(-noise_level, noise_level)  # 对于差动驱动机器人，vy通常为0
+        vth = msg.angular.z + random.uniform(-noise_level, noise_level)
 
         self.get_logger().info(f"{vx} , {vy} , {vth}\n")
 
@@ -89,26 +89,26 @@ class debug_nav_routes(Node):
         self.last_time = current_time
 
     
-    def publish_initial_pose(self):
+    def pub_TF(self):
 
-        # 设置时间戳和参考系
-        self.initial_pose.header.stamp = self.get_clock().now().to_msg()
-        self.initial_pose.header.frame_id = 'map'
+        # # 设置时间戳和参考系
+        # self.initial_pose.header.stamp = self.get_clock().now().to_msg()
+        # self.initial_pose.header.frame_id = 'map'
 
-        # 设置位置信息（这里可以根据实际情况调整）
-        self.initial_pose.pose.pose.position.x = -0.3
-        self.initial_pose.pose.pose.position.y = 4.0
-        self.initial_pose.pose.pose.position.z = 0.0
+        # # 设置位置信息（这里可以根据实际情况调整）
+        # self.initial_pose.pose.pose.position.x = -0.3
+        # self.initial_pose.pose.pose.position.y = 4.0
+        # self.initial_pose.pose.pose.position.z = 0.0
 
-        # 设置朝向，使用四元数
-        quat = tf_transformations.quaternion_from_euler(0, 0, -1.5611132853006096)  # 假设初始朝向是零度
-        self.initial_pose.pose.pose.orientation.x = quat[0]
-        self.initial_pose.pose.pose.orientation.y = quat[1]
-        self.initial_pose.pose.pose.orientation.z = quat[2]
-        self.initial_pose.pose.pose.orientation.w = quat[3]
+        # # 设置朝向，使用四元数
+        # quat = tf_transformations.quaternion_from_euler(0, 0, -1.5611132853006096)  # 假设初始朝向是零度
+        # self.initial_pose.pose.pose.orientation.x = quat[0]
+        # self.initial_pose.pose.pose.orientation.y = quat[1]
+        # self.initial_pose.pose.pose.orientation.z = quat[2]
+        # self.initial_pose.pose.pose.orientation.w = quat[3]
 
         # 发布初始位置
-        self.pose_pub.publish(self.initial_pose)
+        # self.pose_pub.publish(self.initial_pose)
         # self.get_logger().info('已发布初始位置到/initialpose话题')
 
         # 创建变换消息
@@ -119,7 +119,7 @@ class debug_nav_routes(Node):
         transform.child_frame_id = "odom"
 
         transform.transform.translation.x = -0.3
-        transform.transform.translation.y = 4.3
+        transform.transform.translation.y = 4.0
         transform.transform.translation.z = 0.0
 
         # 从yaw角度创建四元数
@@ -132,13 +132,15 @@ class debug_nav_routes(Node):
         # 发送变换
         self.tf_broadcaster.sendTransform(transform)
 
-
+        pose_timer = threading.Timer(0.2,self.pub_TF)
+        pose_timer.start()
 
 def main(args=None):
     rclpy.init(args=args)
 
     node = debug_nav_routes()
-    # node.publish_initial_pose()
+    node.pub_TF()
+
     rclpy.spin(node)
     
     node.destroy_node()

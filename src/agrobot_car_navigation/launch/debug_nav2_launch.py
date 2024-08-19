@@ -63,7 +63,23 @@ def generate_launch_description():
         PythonLaunchDescriptionSource([get_package_share_directory("agrobot_car_bringup"),"/launch","/static_tf_launch.py"])
     )
 
+    rviz2_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2_node111"
+    )
+
+    # 导入Keepout过滤器的启动文件，并设置其mask_yaml_file参数
+    keepout_filter_node = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([get_package_share_directory("agrobot_car_navigation"),"/launch","/keepout_filter_launch.py"]),
+        launch_arguments={
+            "mask_yaml_file":os.path.join(get_package_share_directory("agrobot_car_mapping"),"maps","laboratory_mask.yaml")  # Keepout过滤器的遮罩文件路径
+        }.items()
+    )
+
     return launch.LaunchDescription([arg_sim,
+                                     rviz2_node,
+                                     keepout_filter_node,
                                      static_tf_launch,
                                      nav2_map_server_node,
                                      nav_launch,

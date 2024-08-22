@@ -4,6 +4,23 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
+    camera_tf_node = Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='static_transform_publisher_laser',
+            output='screen',
+            arguments=['--x', '0.15', 
+                       '--y', '0', 
+                       '--z', '0.09', 
+                       '--qx', '0', 
+                       '--qy', '0', 
+                       '--qz', '0', 
+                       '--qw', '1', 
+                       '--frame-id', 'base_link', 
+                       '--child-frame-id', 'camera_link'
+                       ]
+        )
+
     imu_tf_node = Node(
             package='tf2_ros',
             executable='static_transform_publisher',
@@ -91,10 +108,11 @@ def generate_launch_description():
         )
 
     return LaunchDescription([
-            imu_tf_node,
-            liser_tf_node,
-            base_link_tf_node,
-            base_footprint_tf_node,
-            odom_tf_node
-        ])
+        camera_tf_node,
+        imu_tf_node,
+        liser_tf_node,
+        base_link_tf_node,
+        base_footprint_tf_node,
+        odom_tf_node
+    ])
 

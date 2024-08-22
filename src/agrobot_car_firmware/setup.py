@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+import os
+from glob import glob
 
 package_name = 'agrobot_car_firmware'
 
@@ -10,6 +12,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name, 'launch'), glob('launch/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -20,7 +23,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "serial_comm = agrobot_car_firmware.CarControlAndFeedback:main"
+            "serial_comm = agrobot_car_firmware.CarControlAndFeedback:main",
+            "camera_comm = agrobot_car_firmware.depth_camera_receiver:main"
         ],
     },
 )

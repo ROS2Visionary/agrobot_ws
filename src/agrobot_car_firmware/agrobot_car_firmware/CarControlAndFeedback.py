@@ -28,9 +28,6 @@ class CarControlAndFeedback(Node):
         self.sub = self.create_subscription(Twist, "/cmd_vel", self.control_motor, 10)
 
         self.amcl_pose_group = MutuallyExclusiveCallbackGroup()
-        # self.amcl_pose_sub = self.create_subscription(PoseWithCovarianceStamped, '/amcl_pose', self.amcl_pose_callback, 10,callback_group=self.amcl_pose_group)
-        # self.pose_sub = self.create_subscription(PoseWithCovarianceStamped,"/pose",self.pose_callback,10)
-
 
          # 创建TF广播器
         self.tf_broadcaster = tf2_ros.TransformBroadcaster(self)
@@ -52,14 +49,6 @@ class CarControlAndFeedback(Node):
         self.is_init_pose = False
         self.output_tags = 0
         self.temp_arr = []
-
-    # AMCL初始位置回调函数
-    def amcl_pose_callback(self, msg:PoseWithCovarianceStamped):
-        self.position_x = msg.pose.pose.position.x
-        self.position_y = msg.pose.pose.position.y
-        self.orientation_z = msg.pose.pose.orientation.z
-        self.orientation_w = msg.pose.pose.orientation.w
-        self.theta = 0.0
 
         
     def control_motor(self, msg: Twist):
@@ -164,17 +153,6 @@ class CarControlAndFeedback(Node):
         # 发布TF
         self.tf_broadcaster.sendTransform(t)
 
-    def pose_callback(self,msg:PoseWithCovarianceStamped):
-
-        if self.is_init_pose:
-            return
-        self.is_init_pose = True
-        self.position_x = msg.pose.pose.position.x
-        self.position_y = msg.pose.pose.position.y
-        self.orientation_z = msg.pose.pose.orientation.z
-        self.orientation_w = msg.pose.pose.orientation.w
-        self.theta = 0.0
-        self.get_logger().info("收到位置信息")
 
     def stop(self):
         # 停止电机运行，将电机速度设置为0

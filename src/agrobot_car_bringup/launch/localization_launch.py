@@ -53,7 +53,6 @@ def generate_launch_description():
         firmware_node,
         static_tf_launch,
         lidar_data_relay_node,
-        # localization_launch,
         TimerAction(
             period=10.0,
             actions=[localization_launch]

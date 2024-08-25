@@ -20,8 +20,8 @@ def generate_launch_description():
     )
 
     # * 不会修改地图，只会临时在地图上显示激光雷达扫到的新的障碍物，激光雷达扫描过后将会清除新的障碍物痕迹
-    slam_config = os.path.join(get_package_share_directory("agrobot_car_localization"), "config", "temp.yaml") 
-    # slam_config = os.path.join(get_package_share_directory("agrobot_car_localization"), "config", "mapper_params_localization.yaml") 
+    # slam_config = os.path.join(get_package_share_directory("agrobot_car_localization"), "config", "temp.yaml") 
+    slam_config = os.path.join(get_package_share_directory("agrobot_car_localization"), "config", "mapper_params_localization.yaml") 
     # * 会修改地图，会在地图上显示激光雷达扫到的新的障碍物，激光雷达扫描过后不会清除新的障碍物痕迹
     # slam_config = os.path.join(get_package_share_directory("agrobot_car_localization"), "config", "mapper_params_online_async.yaml")
 

@@ -45,7 +45,7 @@ def generate_launch_description():
         output="screen",  # 输出信息到屏幕
         parameters=[
             {"time_interval":20.0},  # 地图保存间隔，单位为秒
-            {"save_dir_path":"/root/agrobot_ws/src/agrobot_car_mapping/sequence_maps_ws"},  # 保存地图的目录路径，确保该路径存在
+            {"save_dir_path":"/home/npaacrs/agrobot_ws/src/agrobot_car_mapping/sequence_maps_ws"},  # 保存地图的目录路径，确保该路径存在
         ]
     )
 
@@ -57,7 +57,7 @@ def generate_launch_description():
         output="screen",  # 输出信息到屏幕
         parameters=[
             {"time_interval":20.0},  # 地图保存间隔，单位为秒
-            {"save_dir_path":"/root/agrobot_ws/src/agrobot_car_mapping/maps_ws"},  # 保存地图的目录路径，确保该路径存在
+            {"save_dir_path":"/home/npaacrs/agrobot_ws/src/agrobot_car_mapping/maps_ws"},  # 保存地图的目录路径，确保该路径存在
         ]
     )
 

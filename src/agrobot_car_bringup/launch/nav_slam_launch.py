@@ -43,7 +43,7 @@ def generate_launch_description():
  
     
     nav_server_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([get_package_share_directory("agrobot_car_navigation"),"/launch","/nav2_with_slam_launch.py"]),
+        PythonLaunchDescriptionSource([get_package_share_directory("agrobot_car_navigation"),"/launch","/nav2_slam_launch.py"]),
     )
 
 

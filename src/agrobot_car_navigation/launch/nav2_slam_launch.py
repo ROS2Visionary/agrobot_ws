@@ -26,7 +26,7 @@ def generate_launch_description():
 
     slam_toolbox_pkg_share_dir = get_package_share_directory("slam_toolbox")
         
-    slam_params_file = os.path.join(pkg_share_dir,"config","mapper_params_online_async.yaml")
+    slam_params_file = os.path.join(pkg_share_dir,"config","mapper_params_localization.yaml")
     nav2_param_path = os.path.join(pkg_share_dir,"config","navigation_params.yaml")
         
     use_sim_time = LaunchConfiguration("use_sim_time")
@@ -47,7 +47,7 @@ def generate_launch_description():
     
     slam_launch =  IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                [slam_toolbox_pkg_share_dir, '/launch', '/online_async_launch.py']),
+                [slam_toolbox_pkg_share_dir, '/launch', '/localization_launch.py']),
             # 使用 Launch 参数替换原有参数
             launch_arguments={
                 'use_sim_time': use_sim_time,

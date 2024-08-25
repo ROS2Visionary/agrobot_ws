@@ -13,7 +13,7 @@ class map_saver(Node):
 
         # 声明并获取参数
         self.declare_parameter("time_interval", 20.0)  # 保存地图的时间间隔，默认为10秒
-        self.declare_parameter("save_dir_path", "/root/agrobot_ws/src/agrobot_car_mapping/maps_ws")  # 地图保存路径，默认为default_save_path
+        self.declare_parameter("save_dir_path", "")  # 地图保存路径，默认为default_save_path
 
         # 获取参数值
         self.time_interval = self.get_parameter("time_interval").get_parameter_value().double_value

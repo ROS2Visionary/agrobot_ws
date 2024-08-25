@@ -97,8 +97,7 @@ class multi_point_navigator(BasicNavigator):
         goal_pose_5.pose.orientation.z = 0.9926303026289666
         goal_pose_5.pose.orientation.w = 0.12118202136755257
 
-        self.goal_poses = [goal_pose_1]
-        # self.goal_poses = [goal_pose_1,goal_pose_2,goal_pose_2,goal_pose_4,goal_pose_5]
+        self.goal_poses = [goal_pose_1,goal_pose_2,goal_pose_2,goal_pose_4,goal_pose_5]
 
 
     def monitor_progress(self):

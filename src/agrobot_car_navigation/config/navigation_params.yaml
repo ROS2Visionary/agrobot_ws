@@ -137,7 +137,7 @@ controller_server:
       debug_trajectory_details: True  # 是否输出轨迹调试信息，用于调试
       min_vel_x: 0.0  # 最小X方向速度（米/秒），低于此值视为停止
       min_vel_y: 0.0  # 最小Y方向速度（米/秒），低于此值视为停止
-      max_vel_x: 0.2  # 最大X方向速度（米/秒），限制机器人最高速度
+      max_vel_x: 0.5  # 最大X方向速度（米/秒），限制机器人最高速度
       max_vel_y: 0.0  # 最大Y方向速度（米/秒），限制机器人最高速度
       max_vel_theta: 0.14  # 最大角速度（弧度/秒），限制机器人最高角速度
       min_speed_xy: 0.0  # 最小XY速度（米/秒），低于此值视为停止
@@ -186,7 +186,6 @@ local_costmap:
       resolution: 0.05  # 代价地图分辨率（米/像素），控制地图的精度
       robot_radius: 0.25  # 机器人半径（米），用于设置机器人的大小
       plugins: ["voxel_layer", "inflation_layer"]  # 插件列表，用于加载不同的代价地图层
-      filters: ["keepout_filter"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"  # 膨胀层插件，用于在障碍物周围创建安全区域
         cost_scaling_factor: 3.0  # 代价缩放因子，控制膨胀的代价
@@ -214,10 +213,6 @@ local_costmap:
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"  # 静态层插件，用于加载静态地图
         map_subscribe_transient_local: True  # 地图订阅暂态本地
-      keepout_filter:
-        plugin: "nav2_costmap_2d::KeepoutFilter"
-        enabled: True
-        filter_info_topic: "/costmap_filter_info"
       always_send_full_costmap: True  # 是否总是发送完整的代价地图
 
 global_costmap:
@@ -232,7 +227,6 @@ global_costmap:
       resolution: 0.05  # 代价地图分辨率（米/像素），控制地图的精度
       track_unknown_space: true  # 是否跟踪未知空间，用于处理未知区域
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]  # 插件列表，用于加载不同的代价地图层
-      filters: ["keepout_filter"]
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"  # 障碍物层插件，用于处理动态障碍物
         enabled: True  # 是否启用障碍物层
@@ -254,10 +248,6 @@ global_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"  # 膨胀层插件，用于在障碍物周围创建安全区域
         cost_scaling_factor: 3.0  # 代价缩放因子，控制膨胀的代价
         inflation_radius: 0.5  # 膨胀半径（米），控制膨胀区域的大小
-      keepout_filter:
-        plugin: "nav2_costmap_2d::KeepoutFilter"
-        enabled: True
-        filter_info_topic: "/costmap_filter_info"
       always_send_full_costmap: True  # 是否总是发送完整的代价地图
 
 map_server:
@@ -340,8 +330,8 @@ velocity_smoother:
     smoothing_frequency: 20.0  # 平滑频率（Hz），决定速度平滑的更新频率
     scale_velocities: False  # 是否缩放速度，用于速度控制
     feedback: "OPEN_LOOP"  # 反馈类型，用于速度控制
-    max_velocity: [0.1, 0.0, 0.07]  # 最大速度（米/秒），限制机器人最高速度
-    min_velocity: [-0.1, 0.0, -0.07]  # 最小速度（米/秒），限制机器人最低速度
+    max_velocity: [0.5, 0.0, 0.07]  # 最大速度（米/秒），限制机器人最高速度
+    min_velocity: [-0.5, 0.0, -0.07]  # 最小速度（米/秒），限制机器人最低速度
     max_accel: [0.03, 0.0, 0.03]  # 最大加速度（米/秒²），用于控制加速性能
     max_decel: [-0.03, 0.0, -0.03]  # 最大减速度（米/秒²），用于控制减速性能
     odom_topic: "odom"  # 里程计话题，用于获取机器人的运动信息

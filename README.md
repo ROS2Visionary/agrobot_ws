@@ -1,4 +1,32 @@
 
+# bringup 建图  
+colcon build
+source install/setup.sh
+clear
+ros2 launch agrobot_car_bringup mapping_launch.py
+
+
+# bringup 定位  
+colcon build
+source install/setup.sh
+clear
+ros2 launch agrobot_car_bringup localization_launch.py
+
+
+# bringup 导航 slam  
+colcon build
+source install/setup.sh
+clear
+ros2 launch agrobot_car_bringup nav_slam_launch.py
+
+
+# bringup 导航 slam  &  filter
+colcon build
+source install/setup.sh
+clear
+ros2 launch agrobot_car_bringup nav_slam_filter_launch.py
+
+
 # 启动键盘控制
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
  
@@ -12,6 +40,7 @@ ros2 launch --show-args slam_toolbox localization_launch.py
 https://github.com/ros-navigation/navigation2
 https://github.com/SteveMacenski/slam_toolbox
 https://github.com/introlab/rtabmap_ros
+
 
 # 手动保存地图
 ros2 run nav2_map_server map_saver_cli -t map -f '/root/agrobot_ws/src/agrobot_car_mapping/mapping_dir/map'
@@ -27,54 +56,4 @@ colcon build
 source install/setup.sh
 ros2 launch lslidar_driver lsn10p_launch.py
  
-# 建图  
-colcon build --cmake-clean-cache
-colcon build --packages-select agrobot_car_mapping agrobot_car_bringup lslidar_driver
-colcon build
-source install/setup.sh
-clear
-ros2 launch agrobot_car_bringup mapping_launch.py
 
-
-# 定位
-colcon build
-source install/setup.sh
-clear 
-ros2 launch agrobot_car_bringup localization_launch.py
-
-
-# 导航
-colcon build --cmake-clean-cache
-colcon build 
-source install/setup.sh
-clear
-ros2 launch agrobot_car_bringup navigation_launch.py
-
-
-# 导航 filter
-colcon build 
-source install/setup.sh
-clear
-ros2 launch agrobot_car_bringup navigation_slam_filter_launch.py
-
-# 融合
-colcon build  --packages-select agrobot_car_localization
-source install/setup.sh
-rm -f /root/agrobot_ws/src/agrobot_car_localization/debug.txt
-clear
-ros2 launch agrobot_car_bringup fusion_launch.py
-
-
-# 清除
-rm -rf build install log
-
-colcon build 
-source install/setup.sh
-clear
-ros2 launch agrobot_car_bringup show_map_launch.py 
-
-
-colcon build 
-source install/setup.sh
-clear
-ros2 launch agrobot_car_navigation debug_nav2_launch.py 

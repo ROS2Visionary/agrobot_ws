@@ -31,9 +31,15 @@ class CarControlAndFeedback(Node):
 
          # 创建TF广播器
         self.tf_broadcaster = tf2_ros.TransformBroadcaster(self)
-        
-        # 创建里程计数据发布者
-        self.pub_odom = self.create_publisher(Odometry, '/odom', 10)
+
+        self.is_use_gps = False
+
+        if self.is_use_gps:
+            # 创建里程计数据发布者
+            self.pub_odom = self.create_publisher(Odometry, 'delta/odom', 10)
+        else:
+            # 创建里程计数据发布者
+            self.pub_odom = self.create_publisher(Odometry, '/odom', 10)
 
         # 记录上一个数据时间点
         self.last_time = self.get_clock().now()
@@ -59,8 +65,7 @@ class CarControlAndFeedback(Node):
         y_speed = 0.0 
         z_angular_vel = msg.angular.z
 
-        self.get_logger().info(f"{msg.linear} - {msg.angular}")
-        # 该电机实际接收的不是角速度，而是Z方向的线速度(具体可以看文档)，所以要将角速度按比例转换一下(X1.4)
+        # self.get_logger().info(f"{msg.linear} - {msg.angular}")
         straight_cmd = self.pack_motor_cmd(x_speed,y_speed, z_angular_vel) 
         self.ser.write(straight_cmd)
         
@@ -90,10 +95,13 @@ class CarControlAndFeedback(Node):
                     self.ser.read(3) # 忽视电压和校验位
 
                     if binascii.b2a_hex(self.ser.read(1)) == b"7d": # 通过帧尾来判断数据是否有误
-                        self.release_odometer(x_linear,z_angular_vel)
+                        if self.is_use_gps:
+                            self.publish_odom(x_linear,z_angular_vel)
+                        else:
+                            self.publish_odom_tf(x_linear,z_angular_vel)
 
             
-    def release_odometer(self,v, omega):
+    def publish_odom_tf(self,v, omega):
         # 算线速度（v）和角速度（omega）
         now = self.get_clock().now()
 
@@ -152,6 +160,47 @@ class CarControlAndFeedback(Node):
         t.transform.rotation = odom.pose.pose.orientation
         # 发布TF
         self.tf_broadcaster.sendTransform(t)
+
+
+    def publish_odom(self,v, omega):
+        # 算线速度（v）和角速度（omega）
+        now = self.get_clock().now()
+
+        # 更新车辆的位置和角度
+        dt = (now.nanoseconds - self.last_time.nanoseconds) / 1e9
+        theta = omega * dt
+        position_x = v * dt * math.cos(theta)
+        position_y = v * dt * math.sin(theta)
+        
+        # 创建Odometry消息对象
+        odom = Odometry()
+        odom.header.stamp = now.to_msg()  # 设置消息的时间戳为当前时间
+        # 必须指定id，指定了坐标id才能让TF变换系统(需要先发布TF变换)自动查找并处理这些坐标框架之间的变换关系
+        odom.header.frame_id = 'odom'  
+        odom.child_frame_id = "base_footprint"
+
+        # 设置位置信息
+        odom.pose.pose.position.x = position_x
+        odom.pose.pose.position.y = position_y
+        odom.pose.pose.position.z = 0.0
+
+        # 设置方向信息
+        odom.pose.pose.orientation.x = 0.0
+        odom.pose.pose.orientation.y = 0.0
+        odom.pose.pose.orientation.z = math.sin(theta / 2)
+        odom.pose.pose.orientation.w = math.cos(theta / 2)
+
+        # 设置速度信息
+        odom.twist.twist.linear.x = v
+        odom.twist.twist.linear.y = 0.0
+        odom.twist.twist.linear.z = 0.0
+        odom.twist.twist.angular.x = 0.0
+        odom.twist.twist.angular.y = 0.0
+        odom.twist.twist.angular.z = omega
+
+        self.last_time = now
+        self.pub_odom.publish(odom)
+
 
 
     def stop(self):

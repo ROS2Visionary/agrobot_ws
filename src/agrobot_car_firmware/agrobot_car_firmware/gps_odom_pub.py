@@ -5,6 +5,7 @@ from sensor_msgs.msg import NavSatFix
 from nav_msgs.msg import Odometry
 from tf_transformations import quaternion_from_euler
 import pyproj  
+
 class gps_odom_pub(Node):
 
     def __init__(self):
@@ -21,6 +22,9 @@ class gps_odom_pub(Node):
         self.prev_northing = None
         self.initial_easting = None
         self.initial_northing = None
+        
+        # 初始化累积航向角
+        self.cumulative_yaw = 0.0
         
         # 初始化UTM投影
         self.utm_proj = pyproj.Proj(proj='utm', zone=33, ellps='WGS84')  # 需要根据你的GPS位置设置正确的UTM区域
@@ -45,13 +49,15 @@ class gps_odom_pub(Node):
         delta_x = easting - self.initial_easting  # x方向 (东向)
         delta_y = northing - self.initial_northing  # y方向 (北向)
 
-        # 计算航向角 (Yaw)
-        yaw_degrees = 0.0  # 默认航向角为0
+        # 计算航向角增量 (Yaw)
         if self.prev_easting is not None and self.prev_northing is not None:
             d_easting = easting - self.prev_easting
             d_northing = northing - self.prev_northing
-            yaw_degrees = math.degrees(math.atan2(d_northing, d_easting))
-            yaw_degrees = (yaw_degrees + 360) % 360  # 确保角度在 [0, 360) 范围内
+            delta_yaw = math.degrees(math.atan2(d_northing, d_easting))
+            self.cumulative_yaw += delta_yaw
+            self.cumulative_yaw = (self.cumulative_yaw + 360) % 360  # 确保角度在 [0, 360) 范围内
+        else:
+            delta_yaw = 0.0  # 没有前一个位置时增量角为0
 
         # 创建并发布Odometry消息
         odom_msg = Odometry()
@@ -62,8 +68,8 @@ class gps_odom_pub(Node):
         odom_msg.pose.pose.position.y = delta_y  # y坐标（北向距离）
         odom_msg.pose.pose.position.z = 0.0  # z坐标（假设平面运动）
 
-        # 将yaw转换为四元数
-        q = quaternion_from_euler(0, 0, math.radians(yaw_degrees))
+        # 将累积的yaw转换为四元数
+        q = quaternion_from_euler(0, 0, math.radians(self.cumulative_yaw))
         odom_msg.pose.pose.orientation.x = q[0]
         odom_msg.pose.pose.orientation.y = q[1]
         odom_msg.pose.pose.orientation.z = q[2]
@@ -71,7 +77,7 @@ class gps_odom_pub(Node):
 
         # 发布Odometry消息
         self.odom_pub.publish(odom_msg)
-        self.get_logger().info(f"发布位置和航向: x={delta_x:.2f}, y={delta_y:.2f}, yaw={yaw_degrees:.2f}度")
+        self.get_logger().info(f"发布位置和累积航向: x={delta_x:.2f}, y={delta_y:.2f}, 累积Yaw={self.cumulative_yaw:.2f}度")
         
         # 更新上一个位置
         self.prev_easting = easting

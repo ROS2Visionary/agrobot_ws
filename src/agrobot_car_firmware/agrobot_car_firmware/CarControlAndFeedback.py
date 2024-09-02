@@ -55,12 +55,15 @@ class CarControlAndFeedback(Node):
         self.is_init_pose = False
         self.output_tags = 0
         self.temp_arr = []
-
+        self.real_x_speed = 0.0
+        self.kp = 0.5
         
     def control_motor(self, msg: Twist):
         # 控制电机的方法，接收Twist消息类型作为参数
                 
         x_speed = msg.linear.x
+        x_speed += self.kp*(x_speed - self.real_x_speed)
+        
         # 没有用到y方向的速度，可以直接赋值为0
         y_speed = 0.0 
         z_angular_vel = msg.angular.z
@@ -99,6 +102,7 @@ class CarControlAndFeedback(Node):
                             self.publish_odom(x_linear,z_angular_vel)
                         else:
                             self.publish_odom_tf(x_linear,z_angular_vel)
+                        self.real_x_speed = x_linear
 
             
     def publish_odom_tf(self,v, omega):

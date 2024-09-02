@@ -60,7 +60,7 @@ class gps_serial_pub(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = GpsSerialPublisher()
+    node = gps_serial_pub()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

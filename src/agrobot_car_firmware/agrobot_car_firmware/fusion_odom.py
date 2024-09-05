@@ -47,7 +47,7 @@ class fusion_odom(Node):
         current_time = self.get_clock().now()
         
         # 检查GPS数据的时间戳是否过期
-        if self.gps_last_received and (current_time - self.gps_last_received).nanoseconds > 2e9:  # 2秒内无GPS更新
+        if self.gps_last_received and (current_time.nanoseconds - self.gps_last_received.nanoseconds)/1e9 > 2.0:  # 2秒内无GPS更新
             self.use_gps = False
             self.get_logger().warn("GPS数据超时,切换到car/odom")
 

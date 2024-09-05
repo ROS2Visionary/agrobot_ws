@@ -29,7 +29,7 @@ class CarControlAndFeedback(Node):
 
         self.amcl_pose_group = MutuallyExclusiveCallbackGroup()
 
-         # 创建TF广播器
+        # 创建TF广播器
         self.tf_broadcaster = tf2_ros.TransformBroadcaster(self)
 
         self.is_use_gps = False
@@ -57,19 +57,45 @@ class CarControlAndFeedback(Node):
         self.temp_arr = []
         self.real_x_speed = 0.0
         self.kp = 0.5
+        self.default_kp = 0.5  # 保存默认的kp
+        self.kp_increment = 0.1  # 增加kp的步长
+        self.max_kp = 2.0  # kp的最大值
+        self.speed_diff_threshold = 0.05  # 速度差的阈值
+        self.compensation_time_threshold = 3.0  # 补偿持续时间的阈值（秒）
+        self.last_compensation_time = None
         
     def control_motor(self, msg: Twist):
         # 控制电机的方法，接收Twist消息类型作为参数
                 
         x_speed = msg.linear.x
-        x_speed += self.kp*(x_speed - self.real_x_speed)
+        speed_diff = abs(x_speed - self.real_x_speed)
+
+        # 如果速度差大于阈值，执行补偿
+        if speed_diff > self.speed_diff_threshold:
+            current_time = self.get_clock().now()
+            # 如果 last_compensation_time 未初始化，则将其设置为当前时间
+            if self.last_compensation_time is None:
+                self.last_compensation_time = current_time
+
+            # 检查补偿时间，如果超出一定时间，逐步增加 kp
+            time_diff = (current_time.nanoseconds - self.last_compensation_time.nanoseconds) / 1e9  # 纳秒转秒
+            if time_diff > self.compensation_time_threshold:
+                self.kp = min(self.kp + self.kp_increment, self.max_kp)
+
+            # 使用调整后的 kp 计算速度
+            x_speed += self.kp * (x_speed - self.real_x_speed)
+        else:
+            # 差值在正常范围内，恢复默认 kp
+            self.kp = self.default_kp
+            self.last_compensation_time = None
+
         
         # 没有用到y方向的速度，可以直接赋值为0
         y_speed = 0.0 
         z_angular_vel = msg.angular.z
 
         # self.get_logger().info(f"{msg.linear} - {msg.angular}")
-        straight_cmd = self.pack_motor_cmd(x_speed,y_speed, z_angular_vel) 
+        straight_cmd = self.pack_motor_cmd(x_speed, y_speed, z_angular_vel) 
         self.ser.write(straight_cmd)
         
 

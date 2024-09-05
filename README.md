@@ -35,6 +35,7 @@ ros2 launch --show-args nav2_bringup bringup_launch.py
 ros2 launch --show-args nav2_bringup navigation_launch.py
 ros2 launch --show-args slam_toolbox online_async_launch.py
 ros2 launch --show-args slam_toolbox localization_launch.py
+ros2 launch --show-args rtabmap_launch rtabmap.launch.py
 
 # GitHub地址
 https://github.com/ros-navigation/navigation2
